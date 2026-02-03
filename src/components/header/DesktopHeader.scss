@@ -1,0 +1,63 @@
+// @components/header/DesktopHeader.scss
+.desktop-header {
+  // Only show on larger screens
+  display: none;
+  
+  @media (min-width: 768px) {
+    display: block;
+  }
+
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+    padding: 0 1rem;
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    .logo-icon {
+      color: var(--ion-color-light);
+    }
+
+    .logo-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  .header-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+
+    ion-buttons {
+      gap: 0.5rem;
+    }
+
+    ion-button {
+      --color: white;
+      --background-hover: rgba(255, 255, 255, 0.1);
+      --border-radius: 4px;
+      font-weight: 500;
+      
+      &:hover {
+        --background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  ion-buttons[slot="end"] {
+    gap: 0.25rem;
+    
+    ion-button {
+      --color: white;
+      --background-hover: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
