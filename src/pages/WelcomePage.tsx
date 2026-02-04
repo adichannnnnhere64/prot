@@ -5,21 +5,16 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonGrid,
   IonRow,
   IonCol,
   IonButton,
   IonIcon,
-  IonBadge,
-  IonButtons,
-  IonMenuButton,
+  // IonChip,
+  // IonLabel,
 } from '@ionic/react';
 import { 
-  cart, 
   chevronForward,
   flame,
   trendingUp,
@@ -31,6 +26,7 @@ import {
   headset,
   gameController,
   laptop,
+	// walletOutline,
   fitness,
   camera,
 } from 'ionicons/icons';
@@ -86,20 +82,7 @@ const WelcomePage: React.FC = () => {
 
   return (
     <IonPage className='welcome-page'>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonTitle>Swag Coupons</IonTitle>
-          <IonButtons slot="end">
-            <IonButton>
-              <IonIcon slot="icon-only" icon={cart} />
-              <IonBadge color="danger" className="cart-badge">3</IonBadge>
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+
       
       <IonContent fullscreen className="store-content">
         {/* Hero Slider */}
@@ -203,21 +186,6 @@ const WelcomePage: React.FC = () => {
               ))}
             </IonRow>
           </IonGrid>
-        </section>
-
-        {/* Categories Section */}
-        <section className="categories-section ion-padding">
-          <h2>Shop by Category</h2>
-          <div className="categories-grid">
-            {['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books', 'Beauty'].map((category, index) => (
-              <div key={index} className="category-card">
-                <div className="category-icon">
-                  <IonIcon icon={[watch, shirt, bag, fitness, bag, bag][index]} />
-                </div>
-                <h4>{category}</h4>
-              </div>
-            ))}
-          </div>
         </section>
       </IonContent>
     </IonPage>

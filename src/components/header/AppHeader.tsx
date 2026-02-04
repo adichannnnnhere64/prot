@@ -18,7 +18,7 @@ const AppHeader: React.FC = () => {
   return (
     <IonHeader>
       <IonToolbar>
-        <IonTitle>Tauronic</IonTitle>
+        <IonTitle>Swag Coupon</IonTitle>
       </IonToolbar>
     </IonHeader>
   );

@@ -27,7 +27,7 @@ import {
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { 
   arrowBack, 
-  card, 
+  // card, 
   wallet, 
   checkmarkCircle,
   cash,
@@ -131,7 +131,7 @@ const CheckoutPage: React.FC = () => {
 
   const paymentMethods = [
     { id: 'credits', name: 'Game Credits', icon: wallet, description: `Available: $${userCredits.toFixed(2)}` },
-    { id: 'card', name: 'Credit/Debit Card', icon: card, description: 'Pay with your card' },
+    // { id: 'card', name: 'Credit/Debit Card', icon: card, description: 'Pay with your card' },
   ];
 
   return (

@@ -34,7 +34,7 @@
         androidSdk = pkgs.androidenv.composeAndroidPackages {
           cmdLineToolsVersion = "11.0";
           platformVersions = ["34" "36"];
-          buildToolsVersions = [ "30.0.3" "34.0.0"];
+          buildToolsVersions = [ "30.0.3" "34.0.0" "35.0.0"];
           includeNDK = true;
           ndkVersions = ["26.1.10909125"];
           includeSources = false;

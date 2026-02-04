@@ -1,8 +1,8 @@
 import { IonReactRouter } from '@ionic/react-router';
 import WelcomePage from '@pages/WelcomePage';
-import { IonApp, setupIonicReact, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet, IonTabs } from '@ionic/react';
-import { home,  cash,  settings, list,  } from 'ionicons/icons';
-import ProductPage from '@pages/ProductPage';
+import { IonApp, setupIonicReact, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet, IonTabs, IonButtons, IonChip, IonHeader, IonToolbar, IonMenuButton, IonTitle } from '@ionic/react';
+import { home,  cash,  settings, list, walletOutline,  } from 'ionicons/icons';
+import ProductPage from '@pages/OperatorPage';
 import CheckoutPage from '@pages/CheckoutPage';
 
 import { Route } from 'react-router-dom';
@@ -45,6 +45,30 @@ const App: React.FC = () => {
       <IonReactRouter>
         {/* Show header only on desktop */}
         {!isMobile && <AppHeader />}
+
+
+				{
+					isMobile && 
+
+      <IonHeader>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonMenuButton />
+          </IonButtons>
+          <IonTitle>Swag Coupons</IonTitle>
+				<IonButtons slot="end">
+  <IonChip color="secondary" className="credit-chip">
+    <IonIcon icon={walletOutline} />
+    <IonLabel>$50</IonLabel>
+  </IonChip>
+
+</IonButtons>
+
+        </IonToolbar>
+      </IonHeader>
+
+				}
+
 
         {isMobile ? (
           // Mobile layout with tabs

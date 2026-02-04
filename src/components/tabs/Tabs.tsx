@@ -19,7 +19,7 @@ const Tabs: React.FC = () => (
       <IonIcon aria-hidden="true" icon={colorFilter} />
       <IonLabel>UI Components</IonLabel>
     </IonTabButton>
-    <IonTabButton tab="integrations" href={RouteName.INTEGRATIONS}>
+    <IonTabButton tab="integrations" href={RouteName.ORDERS}>
       <IonIcon aria-hidden="true" icon={extensionPuzzle} />
       <IonLabel>Integrations</IonLabel>
     </IonTabButton>

@@ -7,10 +7,8 @@ import {
   IonContent,
   IonSearchbar,
   IonCard,
-  IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonCardSubtitle,
   IonButton,
   IonIcon,
   IonLabel,
@@ -33,7 +31,7 @@ import './SearchPage.scss';
 import { useHistory } from 'react-router-dom';
 
 // Mock product data
-const mockProducts = [
+const mockOperators = [
   { 
     id: 1, 
     name: 'Premium Smart Watch', 
@@ -112,7 +110,7 @@ const SearchPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('popular');
 
   // Filter products based on search and filters
-  const filteredProducts = mockProducts.filter(product => {
+  const filteredOperators = mockOperators.filter(product => {
     // Search filter
     const matchesSearch = searchQuery === '' || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -134,7 +132,7 @@ const SearchPage: React.FC = () => {
   });
 
   // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedOperators = [...filteredOperators].sort((a, b) => {
     switch (sortBy) {
       case 'price-low':
         return a.price - b.price;
@@ -171,7 +169,7 @@ const SearchPage: React.FC = () => {
     <IonPage className="search-page">
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Search Products</IonTitle>
+          <IonTitle>Search Operators</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -181,7 +179,7 @@ const SearchPage: React.FC = () => {
           <IonSearchbar
             value={searchQuery}
             onIonChange={(e) => setSearchQuery(e.detail.value || '')}
-            placeholder="Search products..."
+            placeholder="Search operators..."
             animated
             showCancelButton="focus"
           />
@@ -285,15 +283,15 @@ const SearchPage: React.FC = () => {
         {/* Results Info */}
         <div className="results-info ion-padding">
           <h3>
-            {sortedProducts.length} {sortedProducts.length === 1 ? 'product' : 'products'} found
+            {sortedOperators.length} {sortedOperators.length === 1 ? 'operator' : 'operators'} found
           </h3>
         </div>
 
-        {/* Products Grid */}
+        {/* Operators Grid */}
         <div className="products-grid ion-padding">
           <IonGrid>
             <IonRow>
-              {sortedProducts.map(product => (
+              {sortedOperators.map(product => (
                 <IonCol size="6" sizeMd="4" sizeLg="3" key={product.id}>
                   <IonCard className="product-card" button onClick={() => handleViewProduct(product.id)}>
                     <div className="product-image">
@@ -305,17 +303,9 @@ const SearchPage: React.FC = () => {
                     </div>
                     
                     <IonCardHeader>
-                      <IonCardSubtitle>{product.category}</IonCardSubtitle>
                       <IonCardTitle>{product.name}</IonCardTitle>
                     </IonCardHeader>
                     
-                    <IonCardContent>
-                      <div className="product-footer">
-                        <div className="product-price">
-                          <h3>${product.price.toFixed(2)}</h3>
-                        </div>
-                      </div>
-                    </IonCardContent>
                   </IonCard>
                 </IonCol>
               ))}
@@ -323,10 +313,10 @@ const SearchPage: React.FC = () => {
           </IonGrid>
 
           {/* No Results */}
-          {sortedProducts.length === 0 && (
+          {sortedOperators.length === 0 && (
             <div className="no-results ion-text-center ion-padding">
               <IonIcon icon={search} size="large" />
-              <h3>No products found</h3>
+              <h3>No Operator found</h3>
               <p>Try adjusting your search or filters</p>
               <IonButton onClick={clearFilters}>
                 Clear All Filters

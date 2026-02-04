@@ -39,8 +39,8 @@ import './AccountPage.scss';
 
 const AccountPage: React.FC = () => {
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    name: 'Moham Upwork',
+    email: 'andrewperoramas@test.com',
     phone: '+1 (555) 123-4567',
     address: '123 Main St, New York, NY 10001',
   });

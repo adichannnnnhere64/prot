@@ -28,10 +28,10 @@ import {
   watch,
   headset,
 } from 'ionicons/icons';
-import './ProductPage.scss';
+import './OperatorPage.scss';
 
 // Mock product data - in a real app, this would come from an API or state management
-const mockProducts = [
+const mockOperators = [
   { 
     id: 1, 
     name: 'Premium Smart Watch', 
@@ -77,12 +77,12 @@ const mockProducts = [
   // Add other products similarly...
 ];
 
-const ProductPage: React.FC = () => {
+const OperatorPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
 
   // Find the product by ID
-  const product = mockProducts.find(p => p.id === parseInt(productId || '1'));
+  const product = mockOperators.find(p => p.id === parseInt(productId || '1'));
 
   if (!product) {
     return (
@@ -92,12 +92,12 @@ const ProductPage: React.FC = () => {
             <IonButtons slot="start">
               <IonBackButton defaultHref="/" />
             </IonButtons>
-            <IonTitle>Product Not Found</IonTitle>
+            <IonTitle>Operator Not Found</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
           <div className="ion-padding ion-text-center">
-            <h2>Product not found</h2>
+            <h2>Operator not found</h2>
             <IonButton onClick={() => history.push('/')}>Back to Home</IonButton>
           </div>
         </IonContent>
@@ -132,7 +132,7 @@ const handleBuyNow = (): void => {
       </IonHeader>
 
       <IonContent fullscreen>
-        {/* Product Image Gallery */}
+        {/* Operator Image Gallery */}
         <div className="product-gallery">
           <div className="main-image">
             <div className="image-placeholder">
@@ -142,7 +142,7 @@ const handleBuyNow = (): void => {
 
         </div>
 
-        {/* Product Info */}
+        {/* Operator Info */}
         <div className="product-info ion-padding">
           <div className="product-header">
             <div>
@@ -183,7 +183,7 @@ const handleBuyNow = (): void => {
             
             <IonButton 
               expand="block" 
-              color="secondary" 
+              color="primary" 
               fill="outline"
               size="large"
               onClick={handleBuyNow}
@@ -218,4 +218,4 @@ const handleBuyNow = (): void => {
   );
 };
 
-export default ProductPage;
+export default OperatorPage;

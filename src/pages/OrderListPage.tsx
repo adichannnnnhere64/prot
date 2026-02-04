@@ -41,7 +41,7 @@ import { useHistory } from 'react-router-dom';
 const mockOrders = [
   {
     id: 'ORD-001',
-    customer: 'John Doe',
+    customer: 'Andrew P',
     email: 'john@example.com',
     total: 299.99,
     date: '2024-01-15',
