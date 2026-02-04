@@ -1,6 +1,4 @@
 import {
-  IonAccordion,
-  IonAccordionGroup,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -9,7 +7,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonText,
   IonTitle,
   IonToolbar,
   IonGrid,
@@ -17,23 +14,12 @@ import {
   IonCol,
   IonButton,
   IonIcon,
-  IonChip,
   IonBadge,
-  IonLabel,
-  IonList,
-  IonItem,
   IonButtons,
   IonMenuButton,
 } from '@ionic/react';
 import { 
-  star, 
   cart, 
-  heart, 
-  shareSocial,
-  logoFacebook,
-  logoTwitter,
-  logoInstagram,
-  logoLinkedin,
   chevronForward,
   flame,
   trendingUp,
@@ -88,15 +74,6 @@ const WelcomePage: React.FC = () => {
       buttonText: 'Shop Now'
     },
     {
-      title: 'New Arrivals',
-      subtitle: 'Latest Collection',
-      description: 'Fresh styles just arrived',
-      color: 'secondary',
-      bgColor: 'var(--ion-color-secondary)',
-      image: 'assets/slide2.jpg',
-      buttonText: 'Explore'
-    },
-    {
       title: 'Free Shipping',
       subtitle: 'On Orders Over $50',
       description: 'No minimum purchase required',
@@ -114,7 +91,7 @@ const WelcomePage: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Tauronic Store</IonTitle>
+          <IonTitle>Swag Coupons</IonTitle>
           <IonButtons slot="end">
             <IonButton>
               <IonIcon slot="icon-only" icon={cart} />
@@ -201,19 +178,6 @@ const WelcomePage: React.FC = () => {
 
 									>
                     <div className="product-image">
-                      <div className="product-tag">
-                        <IonChip color={product.color} className="tag-chip">
-                          {product.tag}
-                        </IonChip>
-                      </div>
-                      <div className="product-actions">
-                        <IonButton fill="clear" color="danger" size="small">
-                          <IonIcon slot="icon-only" icon={heart} />
-                        </IonButton>
-                        <IonButton fill="clear" color="medium" size="small">
-                          <IonIcon slot="icon-only" icon={shareSocial} />
-                        </IonButton>
-                      </div>
                       <div className="image-placeholder">
                         <IonIcon icon={product.icon} className="product-icon" />
                       </div>
@@ -222,17 +186,6 @@ const WelcomePage: React.FC = () => {
                     <IonCardHeader>
                       <IonCardSubtitle>{product.category}</IonCardSubtitle>
                       <IonCardTitle>{product.name}</IonCardTitle>
-                      <div className="product-rating">
-                        {[...Array(5)].map((_, i) => (
-                          <IonIcon 
-                            key={i} 
-                            icon={star} 
-                            color={i < Math.floor(product.rating) ? 'warning' : 'medium'}
-                            className="star-icon"
-                          />
-                        ))}
-                        <span className="rating-text">{product.rating}</span>
-                      </div>
                     </IonCardHeader>
                     
                     <IonCardContent>
@@ -243,15 +196,6 @@ const WelcomePage: React.FC = () => {
                             <span className="original-price">$159.99</span>
                           )}
                         </div>
-                        <IonButton 
-                          color="primary" 
-                          fill="solid" 
-                          size="small"
-                          className="add-to-cart"
-                        >
-                          <IonIcon slot="start" icon={cart} />
-                          Add
-                        </IonButton>
                       </div>
                     </IonCardContent>
                   </IonCard>
@@ -275,136 +219,6 @@ const WelcomePage: React.FC = () => {
             ))}
           </div>
         </section>
-
-        {/* About Section (Collapsible) */}
-        <section className="about-section ion-padding">
-          <IonCard>
-            <IonAccordionGroup>
-              <IonAccordion value='first'>
-                <IonCardHeader slot='header'>
-                  <IonText>Click to find out more!</IonText>
-                  <IonCardTitle>
-                    <h3>Tauronic Store - Premium Shopping Experience</h3>
-                  </IonCardTitle>
-                  <IonCardSubtitle>
-                    <h2>About Our Store</h2>
-                  </IonCardSubtitle>
-                </IonCardHeader>
-                <IonCardContent slot='content'>
-                  <h2>Why Choose Tauronic Store?</h2>
-                  <p>
-                    Tauronic Store is your one-stop destination for premium products 
-                    across various categories. We combine cutting-edge technology with 
-                    exceptional customer service to deliver an unparalleled shopping experience.
-                  </p>
-                  
-                  <h2>Our Promise:</h2>
-                  <ul>
-                    <li>✅ 100% Authentic Products</li>
-                    <li>✅ Free Shipping on Orders Over $50</li>
-                    <li>✅ 30-Day Return Policy</li>
-                    <li>✅ 24/7 Customer Support</li>
-                    <li>✅ Secure Payment Gateway</li>
-                  </ul>
-                  
-                  <div className="store-stats">
-                    <div className="stat">
-                      <h3>10K+</h3>
-                      <p>Happy Customers</p>
-                    </div>
-                    <div className="stat">
-                      <h3>500+</h3>
-                      <p>Brands Available</p>
-                    </div>
-                    <div className="stat">
-                      <h3>24/7</h3>
-                      <p>Support Available</p>
-                    </div>
-                  </div>
-                </IonCardContent>
-              </IonAccordion>
-            </IonAccordionGroup>
-          </IonCard>
-        </section>
-
-        {/* Footer - Now inside IonContent */}
-        <footer className="store-footer ion-padding">
-          <div className="footer-content">
-            <IonGrid>
-              <IonRow>
-                <IonCol size="12" sizeMd="4">
-                  <div className="footer-section">
-                    <h3>Tauronic Store</h3>
-                    <p>Your premium shopping destination. Quality products, exceptional service.</p>
-                    <div className="social-icons">
-                      <IonButton fill="clear" color="dark">
-                        <IonIcon icon={logoFacebook} />
-                      </IonButton>
-                      <IonButton fill="clear" color="dark">
-                        <IonIcon icon={logoTwitter} />
-                      </IonButton>
-                      <IonButton fill="clear" color="dark">
-                        <IonIcon icon={logoInstagram} />
-                      </IonButton>
-                      <IonButton fill="clear" color="dark">
-                        <IonIcon icon={logoLinkedin} />
-                      </IonButton>
-                    </div>
-                  </div>
-                </IonCol>
-                
-                <IonCol size="6" sizeMd="2">
-                  <div className="footer-section">
-                    <h4>Shop</h4>
-                    <IonList lines="none">
-                      <IonItem>All Products</IonItem>
-                      <IonItem>New Arrivals</IonItem>
-                      <IonItem>Best Sellers</IonItem>
-                      <IonItem>Sales</IonItem>
-                    </IonList>
-                  </div>
-                </IonCol>
-                
-                <IonCol size="6" sizeMd="2">
-                  <div className="footer-section">
-                    <h4>Help</h4>
-                    <IonList lines="none">
-                      <IonItem>Contact Us</IonItem>
-                      <IonItem>Shipping Info</IonItem>
-                      <IonItem>Returns</IonItem>
-                      <IonItem>FAQs</IonItem>
-                    </IonList>
-                  </div>
-                </IonCol>
-                
-                <IonCol size="12" sizeMd="4">
-                  <div className="footer-section">
-                    <h4>Newsletter</h4>
-                    <p>Subscribe to get special offers and updates</p>
-                    <div className="newsletter-form">
-                      <IonItem className="newsletter-input">
-                        <IonLabel position="floating">Email Address</IonLabel>
-                        <input type="email" placeholder="Enter your email" />
-                      </IonItem>
-                      <IonButton expand="block" color="primary" className="subscribe-btn">
-                        Subscribe
-                      </IonButton>
-                    </div>
-                  </div>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-            
-            <div className="footer-bottom">
-              <p>© 2024 Tauronic Store. All rights reserved.</p>
-              <div className="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Cookie Policy</a>
-              </div>
-            </div>
-          </div>
-        </footer>
       </IonContent>
     </IonPage>
   );

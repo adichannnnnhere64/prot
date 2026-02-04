@@ -80,8 +80,6 @@ const mockProducts = [
 const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
-  const [selectedColor, setSelectedColor] = React.useState<string>('');
-  const [quantity, setQuantity] = React.useState<number>(1);
 
   // Find the product by ID
   const product = mockProducts.find(p => p.id === parseInt(productId || '1'));
@@ -109,7 +107,7 @@ const ProductPage: React.FC = () => {
 
 const handleBuyNow = (): void => {
   // Navigate to checkout page with product ID and quantity
-  history.push(`/checkout/${product?.id}?quantity=${quantity}`);
+  history.push(`/checkout/${product?.id}?quantity=1`);
 };
 
   return (
@@ -140,25 +138,8 @@ const handleBuyNow = (): void => {
             <div className="image-placeholder">
               <IonIcon icon={product.icon} className="product-icon-large" />
             </div>
-            {product.tag && (
-              <div className="product-tag">
-                <IonChip color="primary" className="tag-chip">
-                  {product.tag}
-                </IonChip>
-              </div>
-            )}
           </div>
-          
-          {/* Thumbnails (mock) */}
-          <div className="thumbnails">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="thumbnail">
-                <div className="thumbnail-placeholder">
-                  <IonIcon icon={product.icon} />
-                </div>
-              </div>
-            ))}
-          </div>
+
         </div>
 
         {/* Product Info */}
@@ -169,18 +150,7 @@ const handleBuyNow = (): void => {
                 {product.category}
               </IonChip>
               <h1 className="product-title">{product.name}</h1>
-              
-              <div className="product-rating">
-                {[...Array(5)].map((_, i) => (
-                  <IonIcon 
-                    key={i} 
-                    icon={star} 
-                    color={i < Math.floor(product.rating) ? 'warning' : 'medium'}
-                    className="star-icon"
-                  />
-                ))}
-                <span className="rating-text">{product.rating} (128 reviews)</span>
-              </div>
+
             </div>
             
             <div className="product-price">
@@ -192,46 +162,6 @@ const handleBuyNow = (): void => {
           </div>
 
           <p className="product-description">{product.description}</p>
-
-          {/* Color Selection */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="color-selection ion-margin-top">
-              <IonLabel color="medium">Color</IonLabel>
-              <div className="color-options">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                    onClick={() => setSelectedColor(color)}
-                    style={{ backgroundColor: getColorHex(color) }}
-                    title={color}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quantity Selector */}
-          <div className="quantity-selector ion-margin-top">
-            <IonLabel color="medium">Quantity</IonLabel>
-            <div className="quantity-controls">
-              <IonButton 
-                fill="outline" 
-                size="small"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              >
-                -
-              </IonButton>
-              <span className="quantity-value">{quantity}</span>
-              <IonButton 
-                fill="outline" 
-                size="small"
-                onClick={() => setQuantity(quantity + 1)}
-              >
-                +
-              </IonButton>
-            </div>
-          </div>
 
           {/* Features */}
           <div className="product-features ion-margin-top">
@@ -286,19 +216,6 @@ const handleBuyNow = (): void => {
       </IonContent>
     </IonPage>
   );
-};
-
-// Helper function to get color hex codes
-const getColorHex = (colorName: string): string => {
-  const colors: { [key: string]: string } = {
-    'Black': '#000000',
-    'White': '#FFFFFF',
-    'Gray': '#808080',
-    'Silver': '#C0C0C0',
-    'Navy': '#000080',
-    'Midnight Blue': '#191970',
-  };
-  return colors[colorName] || '#CCCCCC';
 };
 
 export default ProductPage;

@@ -15,7 +15,7 @@ const Tabs: React.FC = () => (
       <IonIcon aria-hidden="true" icon={home} />
       <IonLabel>Welcome</IonLabel>
     </IonTabButton>
-    <IonTabButton tab="ui-components" href={RouteName.UI_COMPONENTS}>
+    <IonTabButton tab="ui-components" href={RouteName.PRODUCTS}>
       <IonIcon aria-hidden="true" icon={colorFilter} />
       <IonLabel>UI Components</IonLabel>
     </IonTabButton>
@@ -23,7 +23,7 @@ const Tabs: React.FC = () => (
       <IonIcon aria-hidden="true" icon={extensionPuzzle} />
       <IonLabel>Integrations</IonLabel>
     </IonTabButton>
-    <IonTabButton tab="about" href={RouteName.ABOUT}>
+    <IonTabButton tab="about" href={RouteName.ACCOUNT}>
       <IonIcon aria-hidden="true" icon={flask} />
       <IonLabel>About</IonLabel>
     </IonTabButton>

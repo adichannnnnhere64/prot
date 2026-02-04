@@ -1,10 +1,7 @@
 import { IonReactRouter } from '@ionic/react-router';
 import WelcomePage from '@pages/WelcomePage';
 import { IonApp, setupIonicReact, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet, IonTabs } from '@ionic/react';
-import UIComponentsPage from '@pages/UIComponentsPage';
-import { home, flask, extensionPuzzle, colorFilter } from 'ionicons/icons';
-import IntegrationsPage from '@pages/IntegrationsPage';
-import AboutPage from '@pages/AboutPage';
+import { home,  cash,  settings, list,  } from 'ionicons/icons';
 import ProductPage from '@pages/ProductPage';
 import CheckoutPage from '@pages/CheckoutPage';
 
@@ -15,6 +12,9 @@ import { RouteName } from '@utils/RouteName';
 import './global.scss';
 import TauriAPI from '@services/TauriAPI';
 import AppHeader from '@components/header/AppHeader';
+import AccountPage from '@pages/AccountPage';
+import SearchPage from '@pages/SearchPage';
+import OrderListPage from '@pages/OrderListPage';
 
 let platformMode;
 
@@ -54,14 +54,14 @@ const App: React.FC = () => {
               <Route exact path={RouteName.WELCOME}>
 		<WelcomePage />
               </Route>
-              <Route exact path={RouteName.UI_COMPONENTS}>
-                <UIComponentsPage />
+              <Route exact path={RouteName.PRODUCTS}>
+		<SearchPage />
               </Route>
-              <Route exact path={RouteName.INTEGRATIONS}>
-                <IntegrationsPage />
-              </Route>
-              <Route exact path={RouteName.ABOUT}>
-                <AboutPage />
+		<Route exact path="/orders">
+		  <OrderListPage />
+		</Route>
+              <Route exact path={RouteName.ACCOUNT}>
+		<AccountPage />
               </Route>
               <Route exact path="/product/:productId">
                 <ProductPage />
@@ -75,19 +75,19 @@ const App: React.FC = () => {
             <IonTabBar slot="bottom">
               <IonTabButton tab="welcome" href={RouteName.WELCOME}>
                 <IonIcon aria-hidden="true" icon={home} />
-                <IonLabel>Welcome</IonLabel>
+                <IonLabel>Home</IonLabel>
               </IonTabButton>
-              <IonTabButton tab="ui-components" href={RouteName.UI_COMPONENTS}>
-                <IonIcon aria-hidden="true" icon={colorFilter} />
-                <IonLabel>UI Components</IonLabel>
+              <IonTabButton tab="ui-components" href={RouteName.PRODUCTS}>
+                <IonIcon aria-hidden="true" icon={list} />
+                <IonLabel>Operators</IonLabel>
               </IonTabButton>
-              <IonTabButton tab="integrations" href={RouteName.INTEGRATIONS}>
-                <IonIcon aria-hidden="true" icon={extensionPuzzle} />
-                <IonLabel>Integrations</IonLabel>
+              <IonTabButton tab="integrations" href={RouteName.ORDERS}>
+                <IonIcon aria-hidden="true" icon={cash} />
+                <IonLabel>Orders</IonLabel>
               </IonTabButton>
-              <IonTabButton tab="about" href={RouteName.ABOUT}>
-                <IonIcon aria-hidden="true" icon={flask} />
-                <IonLabel>About</IonLabel>
+              <IonTabButton tab="about" href={RouteName.ACCOUNT}>
+                <IonIcon aria-hidden="true" icon={settings} />
+                <IonLabel>Settings</IonLabel>
               </IonTabButton>
             </IonTabBar>
           </IonTabs>
@@ -98,14 +98,14 @@ const App: React.FC = () => {
             <Route exact path={RouteName.WELCOME}>
 		<WelcomePage />
             </Route>
-            <Route exact path={RouteName.UI_COMPONENTS}>
-              <UIComponentsPage />
+            <Route exact path={RouteName.PRODUCTS}>
+		<SearchPage />
             </Route>
-            <Route exact path={RouteName.INTEGRATIONS}>
-              <IntegrationsPage />
+            <Route exact path={RouteName.ORDERS}>
+		<OrderListPage />
             </Route>
-            <Route exact path={RouteName.ABOUT}>
-              <AboutPage />
+            <Route exact path={RouteName.ACCOUNT}>
+		<AccountPage />
             </Route>
             <Route exact path="/product/:productId">
               <ProductPage />

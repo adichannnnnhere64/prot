@@ -1,9 +1,12 @@
 // src/utils/RouteName.ts
 export const RouteName = {
   WELCOME: '/',
-  UI_COMPONENTS: '/tabs/ui-components',
-  INTEGRATIONS: '/tabs/integrations',
-  ABOUT: '/tabs/about',
+  PRODUCTS: '/products',
+
+  ACCOUNT: '/account',
+
   PRODUCT: '/product/:productId',
   CHECKOUT: '/checkout/:productId',
+  ORDERS: '/orders',
+  ORDER_DETAIL: '/orders/:orderId',
 };
