@@ -1,0 +1,222 @@
+.product-page {
+  .product-gallery {
+    position: relative;
+    
+    .main-image {
+      height: 300px;
+      background: linear-gradient(135deg, var(--ion-color-light), #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      
+      .product-icon-large {
+        font-size: 120px;
+        color: var(--ion-color-medium);
+      }
+      
+      .product-tag {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+      }
+    }
+    
+    .thumbnails {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      overflow-x: auto;
+      
+      .thumbnail {
+        flex: 0 0 auto;
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: var(--ion-color-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid transparent;
+        cursor: pointer;
+        
+        &:hover {
+          border-color: var(--ion-color-primary);
+        }
+        
+        .thumbnail-placeholder {
+          ion-icon {
+            font-size: 24px;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+  }
+  
+  .product-info {
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      
+      .product-title {
+        margin: 10px 0 5px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--ion-color-dark);
+      }
+      
+      .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+        
+        .star-icon {
+          font-size: 16px;
+        }
+        
+        .rating-text {
+          font-size: 0.9rem;
+          margin-left: 8px;
+          color: var(--ion-color-medium);
+        }
+      }
+      
+      .product-price {
+        text-align: right;
+        
+        h2 {
+          margin: 0;
+          font-size: 1.8rem;
+          font-weight: bold;
+          color: var(--ion-color-primary);
+        }
+        
+        .stock-status {
+          margin: 5px 0 0;
+          font-size: 0.9rem;
+          color: var(--ion-color-success);
+          
+          &:global(.low-stock) {
+            color: var(--ion-color-warning);
+          }
+          
+          &:global(.out-of-stock) {
+            color: var(--ion-color-danger);
+          }
+        }
+      }
+    }
+    
+    .product-description {
+      color: var(--ion-color-medium);
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+    
+    .color-selection {
+      .color-options {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        
+        .color-option {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: scale(1.1);
+          }
+          
+          &.selected {
+            border-color: var(--ion-color-primary);
+            box-shadow: 0 0 0 2px var(--ion-color-primary-tint);
+          }
+        }
+      }
+    }
+    
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        
+        .quantity-value {
+          font-size: 1.2rem;
+          font-weight: bold;
+          min-width: 40px;
+          text-align: center;
+        }
+      }
+    }
+    
+    .product-features {
+      ion-item {
+        --min-height: 40px;
+        
+        ion-icon {
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0;
+    }
+  }
+}
+
+// Desktop styles
+@media (min-width: 768px) {
+  .product-page {
+    .product-gallery {
+      .main-image {
+        height: 400px;
+        
+        .product-icon-large {
+          font-size: 160px;
+        }
+      }
+    }
+    
+    .product-info {
+      max-width: 800px;
+      margin: 0 auto;
+      
+      .product-header {
+        .product-title {
+          font-size: 2rem;
+        }
+        
+        .product-price {
+          h2 {
+            font-size: 2.2rem;
+          }
+        }
+      }
+      
+      .action-buttons {
+        flex-direction: row;
+        
+        ion-button {
+          flex: 1;
+        }
+      }
+    }
+  }
+}

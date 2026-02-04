@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { logoIonic, personCircle, notifications, settings } from 'ionicons/icons';
 import './DesktopHeader.scss';
+import { RouteName } from '@utils/RouteName';
 
 const DesktopHeader: React.FC = () => {
   return (
@@ -23,8 +24,8 @@ const DesktopHeader: React.FC = () => {
         {/* Navigation menu in the center (optional) */}
         <div className="header-nav">
           <IonButtons>
-            <IonButton routerLink="/home">Home</IonButton>
-            <IonButton routerLink="/dashboard">Dashboard</IonButton>
+            <IonButton routerLink={RouteName.WELCOME}>Home</IonButton>
+            <IonButton routerLink={RouteName.UI_COMPONENTS}>Dashboard</IonButton>
             <IonButton routerLink="/features">Features</IonButton>
             <IonButton routerLink="/about">About</IonButton>
             <IonButton routerLink="/contact">Contact</IonButton>

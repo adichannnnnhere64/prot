@@ -169,7 +169,7 @@ const WelcomePage: React.FC = () => {
               {features.map((feature, index) => (
                 <IonCol size="6" sizeMd="3" key={index}>
                   <div className="feature-card">
-                    <div className="feature-icon" color={feature.icon.color}>
+                    <div className="feature-icon" >
                       <IonIcon icon={feature.icon} />
                     </div>
                     <h4>{feature.title}</h4>
@@ -194,7 +194,12 @@ const WelcomePage: React.FC = () => {
             <IonRow>
               {products.map((product) => (
                 <IonCol size="6" sizeMd="3" key={product.id}>
-                  <IonCard className="product-card">
+                  <IonCard className="product-card"
+
+										   button
+    routerLink={`/product/${product.id}`}  // Add this line
+
+									>
                     <div className="product-image">
                       <div className="product-tag">
                         <IonChip color={product.color} className="tag-chip">
