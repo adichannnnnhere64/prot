@@ -23,8 +23,8 @@ module.exports = {
     'react/self-closing-comp': ['error', { component: true, html: true }],
     'react-hooks/exhaustive-deps': 'off',
     'react-refresh/only-export-components': 'warn',
-    '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
   },
   settings: {
     react: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -17,70 +17,167 @@ import {
   IonText,
   IonButton,
   IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonInput,
   IonAlert,
   IonLoading,
+  IonChip,
+  IonBadge,
+  IonSpinner,
 } from '@ionic/react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { 
   arrowBack, 
-  // card, 
   wallet, 
   checkmarkCircle,
   cash,
   shieldCheckmark,
+  informationCircle,
+  timeOutline,
+  pricetagOutline,
 } from 'ionicons/icons';
 import './CheckoutPage.scss';
+import apiClient from '@services/APIService';
+import { useAuth } from '@services/useApi';
 
-// Mock product data - in a real app, this would come from state or API
-const mockProducts = [
-  { 
-    id: 1, 
-    name: 'Premium Smart Watch', 
-    price: 299.99, 
-    category: 'Electronics',
-    image: 'watch'
-  },
-  { 
-    id: 2, 
-    name: 'Designer T-Shirt', 
-    price: 49.99, 
-    category: 'Fashion',
-    image: 'shirt'
-  },
-  { 
-    id: 3, 
-    name: 'Wireless Headphones', 
-    price: 129.99, 
-    category: 'Audio',
-    image: 'headset'
-  },
-];
+interface PlanType {
+  id: number;
+  plan_type_id: number;
+  name: string;
+  description: string;
+  base_price: number;
+  actual_price: number;
+  is_active: boolean;
+  discount_percentage: number;
+  meta_data: string;
+}
 
-// Mock user game credits
-const userCredits = 1000.00;
+interface Operator {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+interface LocationState {
+  plan?: PlanType;
+  operator?: Operator;
+}
 
 const CheckoutPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
-  const location = useLocation();
-  
-  // Get quantity from location state or default to 1
-  const searchParams = new URLSearchParams(location.search);
-  const quantity = parseInt(searchParams.get('quantity') || '1');
-  
-  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-  const [showSuccess, setShowSuccess] = useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [paymentMethod, setPaymentMethod] = useState<string>('credits');
+  const location = useLocation<LocationState>();
+  const { user, isAuthenticated } = useAuth();
 
-  // Find the product by ID
-  const product = mockProducts.find(p => p.id === parseInt(productId || '1'));
+  useEffect(() => {
+    if (!isAuthenticated) {
+      history.replace('/');
+    }
+  }, [isAuthenticated, history]);
+  
+  const [plan, setPlan] = useState<PlanType | null>(location.state?.plan || null);
+  const [operator, setOperator] = useState<Operator | null>(location.state?.operator || null);
+  const [loading, setLoading] = useState(!plan);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('credits');
 
-  if (!product) {
+  // Fetch plan data if not passed via location state
+  useEffect(() => {
+    const fetchPlanData = async () => {
+      if (!plan && productId) {
+        try {
+          setLoading(true);
+          const planData = await apiClient.getPlan(parseInt(productId));
+          
+          // Map the API response to our PlanType interface
+          const mappedPlan: PlanType = {
+            id: planData.id,
+            plan_type_id: planData.plan_type_id,
+            name: planData.name,
+            description: planData.description || '',
+            base_price: planData.base_price,
+            actual_price: planData.actual_price,
+            is_active: planData.is_active,
+            discount_percentage: planData.discount_percentage || 0,
+            meta_data: '',
+          };
+          
+          setPlan(mappedPlan);
+
+          // Try to fetch operator data if we have plan_type_id
+          if (planData.plan_type_id) {
+            const operatorData = await apiClient.getPlanType(planData.plan_type_id);
+            setOperator({
+              id: operatorData.id,
+              name: operatorData.name,
+              description: operatorData.description || '',
+              image: '',
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching plan:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchPlanData();
+  }, [productId, plan]);
+
+  const userCredits = parseFloat(user?.wallet_balance || '0');
+  const totalPrice = plan?.actual_price || 0;
+  const hasEnoughCredits = userCredits >= totalPrice;
+
+  const handleCheckout = () => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      history.push('/login');
+      return;
+    }
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmPurchase = async () => {
+    setIsProcessing(true);
+    
+    try {
+      // TODO: Replace with actual API call to purchase
+      // await apiClient.purchasePlan({
+      //   plan_id: plan?.id,
+      //   operator_id: operator?.id,
+      //   payment_method: paymentMethod,
+      // });
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setIsProcessing(false);
+      setShowSuccess(true);
+    } catch (error) {
+      setIsProcessing(false);
+      console.error('Purchase failed:', error);
+      // TODO: Show error message
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    history.push('/orders');
+  };
+
+  const paymentMethods = [
+    { 
+      id: 'credits', 
+      name: 'Wallet Balance', 
+      icon: wallet, 
+      description: `Available: $${userCredits.toFixed(2)}` 
+    },
+  ];
+
+  // Loading state
+  if (loading) {
     return (
       <IonPage>
         <IonHeader>
@@ -88,51 +185,40 @@ const CheckoutPage: React.FC = () => {
             <IonButtons slot="start">
               <IonBackButton defaultHref="/" />
             </IonButtons>
-            <IonTitle>Product Not Found</IonTitle>
+            <IonTitle>Loading...</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
-          <div className="ion-padding ion-text-center">
-            <h2>Product not found</h2>
-            <IonButton onClick={() => history.push('/')}>Back to Home</IonButton>
+          <div className="ion-padding ion-text-center" style={{ marginTop: '50%' }}>
+            <IonSpinner name="crescent" />
+            <p>Loading checkout...</p>
           </div>
         </IonContent>
       </IonPage>
     );
   }
 
-  const totalPrice = product.price * quantity;
-  const hasEnoughCredits = userCredits >= totalPrice;
-
-  const handleCheckout = (): void => {
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmPurchase = (): void => {
-    setIsProcessing(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsProcessing(false);
-      setShowSuccess(true);
-      
-      // In a real app, you would:
-      // 1. Deduct credits from user account
-      // 2. Create an order record
-      // 3. Send confirmation email
-      // 4. Update inventory
-    }, 1500);
-  };
-
-  const handleSuccessClose = (): void => {
-    setShowSuccess(false);
-    history.push('/');
-  };
-
-  const paymentMethods = [
-    { id: 'credits', name: 'Game Credits', icon: wallet, description: `Available: $${userCredits.toFixed(2)}` },
-    // { id: 'card', name: 'Credit/Debit Card', icon: card, description: 'Pay with your card' },
-  ];
+  // Plan not found
+  if (!plan) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonBackButton defaultHref="/" />
+            </IonButtons>
+            <IonTitle>Plan Not Found</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <div className="ion-padding ion-text-center">
+            <h2>Plan not found</h2>
+            <IonButton onClick={() => history.push('/')}>Back to Home</IonButton>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
 
   return (
     <IonPage className="checkout-page">
@@ -148,6 +234,25 @@ const CheckoutPage: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen>
+        {/* Operator Info (if available) */}
+        {operator && (
+          <IonCard className="operator-card">
+            <IonCardContent>
+              <div className="operator-info">
+                {operator.image && (
+                  <img src={operator.image} alt={operator.name} className="operator-image" />
+                )}
+                <div>
+                  <IonChip color="primary" outline>
+                    <IonLabel>{operator.name}</IonLabel>
+                  </IonChip>
+                  <p className="operator-description">{operator.description}</p>
+                </div>
+              </div>
+            </IonCardContent>
+          </IonCard>
+        )}
+
         {/* Order Summary */}
         <IonCard className="summary-card">
           <IonCardHeader>
@@ -157,22 +262,87 @@ const CheckoutPage: React.FC = () => {
             <IonList lines="none">
               <IonItem className="product-item">
                 <IonLabel>
-                  <h2>{product.name}</h2>
-                  <p>{product.category}</p>
-                  <p>Quantity: {quantity}</p>
+                  <h2>{plan.name}</h2>
+                  <p>{plan.description}</p>
+                  {plan.meta_data && (
+                    <p className="meta-data">
+                      <IonIcon icon={informationCircle} /> {plan.meta_data}
+                    </p>
+                  )}
                 </IonLabel>
-                <IonText slot="end" className="product-price">
-                  ${product.price.toFixed(2)}
-                </IonText>
               </IonItem>
+
+              {/* Pricing Breakdown */}
+              {plan.discount_percentage < 0 && (
+                <>
+                  <IonItem>
+                    <IonLabel color="medium">Original Price</IonLabel>
+                    <IonText slot="end" className="original-price">
+                      ${plan.base_price.toFixed(2)}
+                    </IonText>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel color="success">
+                      Discount ({Math.abs(plan.discount_percentage).toFixed(0)}%)
+                    </IonLabel>
+                    <IonText slot="end" color="success">
+                      -${(plan.base_price - plan.actual_price).toFixed(2)}
+                    </IonText>
+                  </IonItem>
+                </>
+              )}
               
               <IonItem className="total-item">
                 <IonLabel>
-                  <h2>Total</h2>
+                  <h2><strong>Total Amount</strong></h2>
                 </IonLabel>
                 <IonText slot="end" className="total-price">
-                  ${totalPrice.toFixed(2)}
+                  <strong>${totalPrice.toFixed(2)}</strong>
                 </IonText>
+              </IonItem>
+            </IonList>
+
+            {/* Discount Badge */}
+            {plan.discount_percentage < 0 && (
+              <div className="ion-text-center ion-margin-top">
+                <IonBadge color="danger">
+                  <IonIcon icon={pricetagOutline} /> 
+                  Save ${(plan.base_price - plan.actual_price).toFixed(2)}
+                </IonBadge>
+              </div>
+            )}
+          </IonCardContent>
+        </IonCard>
+
+        {/* Plan Details */}
+        <IonCard className="details-card">
+          <IonCardHeader>
+            <IonCardTitle>Plan Details</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <IonList>
+              <IonItem>
+                <IonIcon slot="start" icon={checkmarkCircle} color="success" />
+                <IonLabel>
+                  <h3>Plan ID</h3>
+                  <p>#{plan.id}</p>
+                </IonLabel>
+              </IonItem>
+              {operator && (
+                <IonItem>
+                  <IonIcon slot="start" icon={checkmarkCircle} color="success" />
+                  <IonLabel>
+                    <h3>Operator</h3>
+                    <p>{operator.name} (ID: {operator.id})</p>
+                  </IonLabel>
+                </IonItem>
+              )}
+              <IonItem>
+                <IonIcon slot="start" icon={timeOutline} color="primary" />
+                <IonLabel>
+                  <h3>Activation</h3>
+                  <p>Instant delivery after payment</p>
+                </IonLabel>
               </IonItem>
             </IonList>
           </IonCardContent>
@@ -204,58 +374,30 @@ const CheckoutPage: React.FC = () => {
                   <IonIcon 
                     slot="end" 
                     icon={checkmarkCircle} 
-                    color={paymentMethod === method.id ? 'primary' : 'transparent'}
+                    color={paymentMethod === method.id ? 'primary' : 'medium'}
                   />
                 </IonItem>
               ))}
             </IonList>
-
-            {/* Credit/Debit Card Form (conditionally shown) */}
-            {paymentMethod === 'card' && (
-              <div className="card-form ion-margin-top">
-                <IonItem className="ion-margin-bottom">
-                  <IonLabel position="floating">Card Number</IonLabel>
-                  <IonInput 
-                    type="tel" 
-                    inputmode="numeric"
-                    placeholder="1234 5678 9012 3456"
-                  />
-                </IonItem>
-                
-                <IonGrid>
-                  <IonRow>
-                    <IonCol>
-                      <IonItem>
-                        <IonLabel position="floating">Expiry Date</IonLabel>
-                        <IonInput 
-                          type="tel" 
-                          placeholder="MM/YY"
-                        />
-                      </IonItem>
-                    </IonCol>
-                    <IonCol>
-                      <IonItem>
-                        <IonLabel position="floating">CVV</IonLabel>
-                        <IonInput 
-                          type="tel" 
-                          placeholder="123"
-                        />
-                      </IonItem>
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
-              </div>
-            )}
 
             {/* Credits Warning */}
             {paymentMethod === 'credits' && !hasEnoughCredits && (
               <div className="credits-warning ion-margin-top">
                 <IonText color="danger">
                   <p>
-                    <IonIcon icon={shieldCheckmark} /> 
-                    Insufficient credits. You need ${(totalPrice - userCredits).toFixed(2)} more.
+                    <IonIcon icon={wallet} /> 
+                    Insufficient balance. You need ${(totalPrice - userCredits).toFixed(2)} more.
                   </p>
                 </IonText>
+                <IonButton 
+                  expand="block" 
+                  fill="outline" 
+                  color="primary"
+                  size="small"
+                  className="ion-margin-top"
+                >
+                  Add Funds to Wallet
+                </IonButton>
               </div>
             )}
           </IonCardContent>
@@ -284,7 +426,7 @@ const CheckoutPage: React.FC = () => {
             disabled={paymentMethod === 'credits' && !hasEnoughCredits}
           >
             <IonIcon slot="start" icon={cash} />
-            Complete Purchase
+            Complete Purchase - ${totalPrice.toFixed(2)}
           </IonButton>
           
           <div className="terms-notice ion-text-center ion-margin-top">
@@ -302,14 +444,11 @@ const CheckoutPage: React.FC = () => {
         isOpen={showConfirmation}
         onDidDismiss={() => setShowConfirmation(false)}
         header="Confirm Purchase"
-        message={`Are you sure you want to purchase ${quantity} ${product.name}(s) for $${totalPrice.toFixed(2)}?`}
+        message={`Are you sure you want to purchase "${plan.name}" for $${totalPrice.toFixed(2)}?`}
         buttons={[
           {
             text: 'Cancel',
             role: 'cancel',
-            handler: (): void => {
-              console.log('Purchase cancelled');
-            }
           },
           {
             text: 'Confirm',
@@ -324,10 +463,10 @@ const CheckoutPage: React.FC = () => {
         isOpen={showSuccess}
         onDidDismiss={handleSuccessClose}
         header="Purchase Successful!"
-        message={`You have successfully purchased ${quantity} ${product.name}(s). Your order has been confirmed.`}
+        message={`You have successfully purchased "${plan.name}". Your plan has been activated.`}
         buttons={[
           {
-            text: 'Continue Shopping',
+            text: 'View Orders',
             handler: handleSuccessClose
           }
         ]}

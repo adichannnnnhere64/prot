@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -13,78 +13,117 @@ import {
   IonChip,
   IonCard,
   IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
   IonText,
-  IonItem,
-  IonList,
-  IonListHeader,
+  IonSpinner,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonBadge,
 } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
 import {
-  star,
   heart,
   shareSocial,
   arrowBack,
-  shirt,
-  watch,
-  headset,
+  pricetag,
+  checkmarkCircle,
+  flashOutline,
+  timeOutline,
+  shieldCheckmarkOutline,
 } from 'ionicons/icons';
 import './OperatorPage.scss';
+import apiClient from '@services/APIService';
 
-// Mock product data - in a real app, this would come from an API or state management
-const mockOperators = [
-  { 
-    id: 1, 
-    name: 'Premium Smart Watch', 
-    price: 299.99, 
-    category: 'Electronics', 
-    rating: 4.5, 
-    description: 'Advanced smart watch with health tracking, notifications, and long battery life.',
-    features: ['Heart Rate Monitor', 'GPS Tracking', 'Water Resistant', '7-Day Battery'],
-    colors: ['Black', 'Silver', 'Midnight Blue'],
-    image: 'watch', 
-    icon: watch, 
-    tag: 'trending', 
-    stock: 15 
-  },
-  { 
-    id: 2, 
-    name: 'Designer T-Shirt', 
-    price: 49.99, 
-    category: 'Fashion', 
-    rating: 4.2,
-    description: 'Premium cotton t-shirt with modern design and comfortable fit.',
-    features: ['100% Cotton', 'Machine Washable', 'Available in multiple sizes'],
-    colors: ['White', 'Black', 'Gray', 'Navy'],
-    image: 'shirt', 
-    icon: shirt, 
-    tag: 'new', 
-    stock: 25 
-  },
-  { 
-    id: 3, 
-    name: 'Wireless Headphones', 
-    price: 129.99, 
-    category: 'Audio', 
-    rating: 4.7,
-    description: 'Noise-cancelling wireless headphones with superior sound quality.',
-    features: ['Active Noise Cancellation', '30-hour battery', 'Bluetooth 5.2', 'Voice Assistant'],
-    colors: ['Black', 'White'],
-    image: 'headset', 
-    icon: headset, 
-    tag: 'sale', 
-    stock: 8 
-  },
-  // Add other products similarly...
-];
+interface PlanType {
+  id: number;
+  plan_type_id: number;
+  name: string;
+  description: string;
+  base_price: number;
+  actual_price: number;
+  is_active: boolean;
+  discount_percentage: number;
+  meta_data: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Operator {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  is_active: boolean;
+  plans_count: number;
+  plan_types: PlanType[];
+  image: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const OperatorPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
+  
+  const [operator, setOperator] = useState<Operator | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Find the product by ID
-  const product = mockOperators.find(p => p.id === parseInt(productId || '1'));
+  useEffect(() => {
+    const fetchOperator = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const result = await apiClient.getPlanType(parseInt(productId || '1')) as any;
+        
+        if (result) {
+          setOperator(result);
+        } else {
+          setError('Operator not found');
+        }
+      } catch (err) {
+        console.error('Error fetching operator:', err);
+        setError('Failed to load operator');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!product) {
+    if (productId) {
+      fetchOperator();
+    }
+  }, [productId]);
+
+  const handlePlanClick = (planId: number) => {
+    history.push(`/checkout/${planId}`);
+  };
+
+  if (loading) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonBackButton defaultHref="/" />
+            </IonButtons>
+            <IonTitle>Loading...</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <div className="ion-padding ion-text-center" style={{ marginTop: '50%' }}>
+            <IonSpinner name="crescent" />
+            <p>Loading operator details...</p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  if (error || !operator) {
     return (
       <IonPage>
         <IonHeader>
@@ -97,18 +136,13 @@ const OperatorPage: React.FC = () => {
         </IonHeader>
         <IonContent>
           <div className="ion-padding ion-text-center">
-            <h2>Operator not found</h2>
+            <h2>{error || 'Operator not found'}</h2>
             <IonButton onClick={() => history.push('/')}>Back to Home</IonButton>
           </div>
         </IonContent>
       </IonPage>
     );
   }
-
-const handleBuyNow = (): void => {
-  // Navigate to checkout page with product ID and quantity
-  history.push(`/checkout/${product?.id}?quantity=1`);
-};
 
   return (
     <IonPage className="product-page">
@@ -119,7 +153,7 @@ const handleBuyNow = (): void => {
               <IonIcon slot="icon-only" icon={arrowBack} />
             </IonButton>
           </IonButtons>
-          <IonTitle>{product.name}</IonTitle>
+          <IonTitle>{operator.name}</IonTitle>
           <IonButtons slot="end">
             <IonButton>
               <IonIcon slot="icon-only" icon={heart} />
@@ -135,81 +169,171 @@ const handleBuyNow = (): void => {
         {/* Operator Image Gallery */}
         <div className="product-gallery">
           <div className="main-image">
-            <div className="image-placeholder">
-              <IonIcon icon={product.icon} className="product-icon-large" />
-            </div>
+            {operator.is_active && (
+              <IonChip className="product-tag" color="success">
+                <IonLabel>Active</IonLabel>
+              </IonChip>
+            )}
+            {operator.image ? (
+              <img 
+                src={operator.image} 
+                alt={operator.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <IonIcon icon={pricetag} className="product-icon-large" />
+            )}
           </div>
-
         </div>
 
         {/* Operator Info */}
         <div className="product-info ion-padding">
           <div className="product-header">
             <div>
-              <IonChip color="medium" outline>
-                {product.category}
+              <IonChip color="primary" outline>
+                <IonLabel>Operator</IonLabel>
               </IonChip>
-              <h1 className="product-title">{product.name}</h1>
-
-            </div>
-            
-            <div className="product-price">
-              <h2>${product.price.toFixed(2)}</h2>
-              <p className="stock-status">
-                {product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock'}
-              </p>
+              <h1 className="product-title">{operator.name}</h1>
             </div>
           </div>
 
-          <p className="product-description">{product.description}</p>
+          <p className="product-description">{operator.description}</p>
 
-          {/* Features */}
-          <div className="product-features ion-margin-top">
-            <IonListHeader>
-              <IonLabel>Features</IonLabel>
-            </IonListHeader>
-            <IonList>
-              {product.features.map((feature, index) => (
-                <IonItem key={index}>
-                  <IonIcon slot="start" icon={star} color="primary" size="small" />
-                  <IonLabel>{feature}</IonLabel>
-                </IonItem>
-              ))}
-            </IonList>
+          {/* Features Section */}
+          <IonGrid className="features-grid ion-margin-vertical">
+            <IonRow>
+              <IonCol size="4" className="ion-text-center">
+                <div className="feature-item">
+                  <IonIcon icon={flashOutline} color="primary" size="large" />
+                  <IonText color="medium">
+                    <small>Instant</small>
+                  </IonText>
+                </div>
+              </IonCol>
+              <IonCol size="4" className="ion-text-center">
+                <div className="feature-item">
+                  <IonIcon icon={shieldCheckmarkOutline} color="success" size="large" />
+                  <IonText color="medium">
+                    <small>Secure</small>
+                  </IonText>
+                </div>
+              </IonCol>
+              <IonCol size="4" className="ion-text-center">
+                <div className="feature-item">
+                  <IonIcon icon={timeOutline} color="warning" size="large" />
+                  <IonText color="medium">
+                    <small>24/7</small>
+                  </IonText>
+                </div>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+
+          {/* Available Plans Section */}
+          <div className="plans-section">
+            <div className="section-header">
+              <h2>Available Plans</h2>
+              <IonBadge color="primary">{operator.plans_count}</IonBadge>
+            </div>
+
+            {operator.plan_types && operator.plan_types.length > 0 ? (
+              <div className="plans-list">
+                {operator.plan_types.map((plan) => (
+                  <IonCard 
+                    key={plan.id} 
+                    className={`plan-card ${!plan.is_active ? 'inactive-plan' : ''}`}
+                    button={plan.is_active}
+                    onClick={() => plan.is_active && handlePlanClick(plan.id)}
+                  >
+                    <IonCardHeader>
+                      <div className="plan-card-header">
+                        <div>
+                          <IonCardTitle className="plan-name">{plan.name}</IonCardTitle>
+                          <IonCardSubtitle>{plan.description}</IonCardSubtitle>
+                        </div>
+                        {plan.discount_percentage < 0 && (
+                          <IonBadge color="danger" className="discount-badge">
+                            {Math.abs(plan.discount_percentage).toFixed(0)}% OFF
+                          </IonBadge>
+                        )}
+                      </div>
+                    </IonCardHeader>
+
+                    <IonCardContent>
+                      <div className="plan-pricing-section">
+                        {plan.discount_percentage < 0 ? (
+                          <div className="pricing-discounted">
+                            <span className="original-price">${plan.base_price.toFixed(2)}</span>
+                            <span className="current-price">${plan.actual_price.toFixed(2)}</span>
+                            <IonText color="success" className="savings">
+                              <small>Save ${(plan.base_price - plan.actual_price).toFixed(2)}</small>
+                            </IonText>
+                          </div>
+                        ) : (
+                          <div className="pricing-regular">
+                            <span className="current-price">${plan.actual_price.toFixed(2)}</span>
+                          </div>
+                        )}
+
+                        <IonButton
+                          expand="block"
+                          color={plan.is_active ? 'primary' : 'medium'}
+                          disabled={!plan.is_active}
+                          className="select-plan-btn"
+                        >
+                          {plan.is_active ? 'Select Plan' : 'Not Available'}
+                        </IonButton>
+                      </div>
+
+                      {plan.meta_data && (
+                        <div className="plan-metadata">
+                          <IonText color="medium">
+                            <small><IonIcon icon={checkmarkCircle} /> {plan.meta_data}</small>
+                          </IonText>
+                        </div>
+                      )}
+                    </IonCardContent>
+                  </IonCard>
+                ))}
+              </div>
+            ) : (
+              <IonCard>
+                <IonCardContent className="ion-text-center">
+                  <IonText color="medium">
+                    <p>No plans available at the moment.</p>
+                  </IonText>
+                </IonCardContent>
+              </IonCard>
+            )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="action-buttons ion-padding">
-            
-            <IonButton 
-              expand="block" 
-              color="primary" 
-              fill="outline"
-              size="large"
-              onClick={handleBuyNow}
-              disabled={product.stock === 0}
-            >
-              Buy Now
-            </IonButton>
-          </div>
-
-          {/* Additional Info */}
-          <IonCard>
+          {/* Additional Information */}
+          <IonCard className="info-card ion-margin-top">
             <IonCardContent>
-              <IonList>
-                <IonItem>
-                  <IonLabel>Free Shipping</IonLabel>
-                  <IonText color="success">On orders over $50</IonText>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>30-Day Returns</IonLabel>
-                  <IonText>No questions asked</IonText>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>Warranty</IonLabel>
-                  <IonText>1 year manufacturer warranty</IonText>
-                </IonItem>
-              </IonList>
+              <h3 className="info-title">Why Choose Us?</h3>
+              <div className="info-list">
+                <div className="info-item">
+                  <IonIcon icon={checkmarkCircle} color="success" />
+                  <div>
+                    <strong>Instant Activation</strong>
+                    <p>Your plan activates immediately after purchase</p>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <IonIcon icon={checkmarkCircle} color="success" />
+                  <div>
+                    <strong>Secure Payments</strong>
+                    <p>100% safe and encrypted transactions</p>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <IonIcon icon={checkmarkCircle} color="success" />
+                  <div>
+                    <strong>24/7 Support</strong>
+                    <p>Get help whenever you need it</p>
+                  </div>
+                </div>
+              </div>
             </IonCardContent>
           </IonCard>
         </div>

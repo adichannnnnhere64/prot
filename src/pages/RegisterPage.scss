@@ -1,0 +1,392 @@
+.register-page {
+  --background: var(--white);
+
+  ion-content {
+    --background: transparent;
+  }
+
+  .register-grid {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  // Force the column to take correct width
+  ion-col[size-xl="4"] {
+    width: 33.3333% !important;
+    max-width: 33.3333% !important;
+    flex: 0 0 33.3333% !important;
+  }
+
+  ion-col[size-lg="6"] {
+    width: 50% !important;
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+
+  ion-col[size-md="8"] {
+    width: 66.6667% !important;
+    max-width: 66.6667% !important;
+    flex: 0 0 66.6667% !important;
+  }
+
+  // Logo Section - Clean and simple
+  .logo-section {
+    margin-bottom: 30px;
+    text-align: center;
+
+    .logo-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--green-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+
+      .logo-icon {
+        font-size: 40px;
+        color: var(--white);
+      }
+    }
+
+    .app-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--gray-dark);
+      margin: 0 0 8px;
+    }
+
+    .app-subtitle {
+      font-size: 0.95rem;
+      color: var(--gray-medium);
+      margin: 0;
+    }
+  }
+
+  // Register Card - Clean flat design
+  .register-card {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    margin: 0;
+
+    ion-card-header {
+      padding: 20px 20px 10px 20px;
+      border-bottom: 1px solid var(--gray-border);
+
+      ion-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+      }
+    }
+
+    ion-card-content {
+      padding: 20px;
+    }
+  }
+
+  // Input Items - Clean and consistent
+  .input-item {
+    --background: transparent;
+    --border-radius: 6px;
+    --padding-start: 12px;
+    --inner-padding-end: 12px;
+    --min-height: 44px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-border);
+    
+    &:not(.item-has-focus):not(:focus-within) {
+      border-color: var(--gray-border);
+    }
+
+    &.item-has-focus,
+    &:focus-within {
+      border-color: var(--green-primary);
+    }
+
+    &.ion-invalid {
+      border-color: var(--error);
+    }
+
+    ion-icon {
+      color: var(--gray-medium);
+      margin-right: 8px;
+    }
+
+    ion-input {
+      font-size: 0.95rem;
+    }
+  }
+
+  .error-text {
+    display: block;
+    margin: -10px 0 12px 12px;
+    font-size: 0.8rem;
+    color: var(--error);
+  }
+
+  // Password Strength - Simple indicator
+  .password-strength {
+    margin: -8px 0 16px;
+
+    .strength-bar {
+      height: 4px;
+      background: var(--gray-border);
+      border-radius: 2px;
+      margin-bottom: 4px;
+      overflow: hidden;
+
+      .strength-fill {
+        height: 100%;
+        border-radius: 2px;
+      }
+    }
+
+    .strength-bar.strength-weak .strength-fill {
+      width: 33%;
+      background: var(--error);
+    }
+
+    .strength-bar.strength-medium .strength-fill {
+      width: 66%;
+      background: var(--warning);
+    }
+
+    .strength-bar.strength-strong .strength-fill {
+      width: 100%;
+      background: var(--green-primary);
+    }
+
+    .strength-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .strength-label-weak {
+      color: var(--error);
+    }
+
+    .strength-label-medium {
+      color: var(--warning);
+    }
+
+    .strength-label-strong {
+      color: var(--green-primary);
+    }
+  }
+
+  // Terms Checkbox - Clean and simple
+  .terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 16px 0;
+
+    ion-checkbox {
+      --size: 18px;
+      --border-radius: 4px;
+      --border-color: var(--gray-border);
+      --border-color-checked: var(--green-primary);
+      --background-checked: var(--green-primary);
+      --checkmark-color: var(--white);
+      margin-top: 2px;
+    }
+
+    ion-text {
+      font-size: 0.85rem;
+      color: var(--gray-medium);
+
+      a {
+        color: var(--green-primary);
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  // Register Button - Clean green button
+  .register-button {
+    --border-radius: 6px;
+    --background: var(--green-primary);
+    --color: var(--white);
+    --background-hover: var(--green-primary-dark);
+    --background-activated: var(--green-primary-dark);
+    height: 44px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    text-transform: none;
+    letter-spacing: normal;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  // Divider - Clean separator
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    color: var(--gray-medium);
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--gray-border);
+    }
+
+    span {
+      padding: 0 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+  }
+
+  // Login link - Simple text link
+  .login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: var(--gray-medium);
+
+    ion-button {
+      --padding-start: 4px;
+      --padding-end: 4px;
+      margin: 0;
+      height: auto;
+      font-weight: 600;
+      text-transform: none;
+      vertical-align: baseline;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Desktop Styles - FIX GRID ISSUES
+@media (min-width: 768px) {
+  .register-page {
+    .register-grid {
+      padding: 40px;
+      background: var(--gray-light);
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    // Override Ionic grid for proper centering
+    ion-grid {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+
+    ion-row {
+      width: 100% !important;
+      justify-content: center !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    ion-col {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+
+    .logo-section {
+      .logo-circle {
+        width: 100px;
+        height: 100px;
+
+        .logo-icon {
+          font-size: 48px;
+        }
+      }
+
+      .app-title {
+        font-size: 2rem;
+      }
+    }
+
+    .register-card {
+      max-width: 400px;
+      width: 100%;
+      margin: 0;
+    }
+  }
+}
+
+// Tablet sizes (768px - 991px)
+@media (min-width: 768px) and (max-width: 991px) {
+  .register-page {
+    ion-col[size-md="8"] {
+      width: 66.6667% !important;
+      max-width: 66.6667% !important;
+    }
+  }
+}
+
+// Desktop sizes (992px - 1199px)
+@media (min-width: 992px) and (max-width: 1199px) {
+  .register-page {
+    ion-col[size-lg="6"] {
+      width: 50% !important;
+      max-width: 50% !important;
+    }
+  }
+}
+
+// Extra large screens (1200px+)
+@media (min-width: 1200px) {
+  .register-page {
+    ion-col[size-xl="4"] {
+      width: 33.3333% !important;
+      max-width: 33.3333% !important;
+    }
+  }
+}
+
+// Mobile Adjustments
+@media (max-width: 767px) {
+  .register-page {
+    .register-grid {
+      padding: 16px;
+    }
+
+    .logo-section {
+      margin-bottom: 24px;
+
+      .logo-circle {
+        width: 70px;
+        height: 70px;
+
+        .logo-icon {
+          font-size: 36px;
+        }
+      }
+
+      .app-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    .register-card {
+      ion-card-content {
+        padding: 16px;
+      }
+    }
+  }
+}

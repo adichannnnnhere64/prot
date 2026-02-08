@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   IonCard,
   IonCardContent,
@@ -11,24 +12,13 @@ import {
   IonCol,
   IonButton,
   IonIcon,
-  // IonChip,
-  // IonLabel,
 } from '@ionic/react';
-import { 
+import {
   chevronForward,
   flame,
   trendingUp,
   shieldCheckmark,
   cash,
-  bag,
-  shirt,
-  watch,
-  headset,
-  gameController,
-  laptop,
-	// walletOutline,
-  fitness,
-  camera,
 } from 'ionicons/icons';
 import './WelcomePage.scss';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -36,27 +26,27 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import apiClient from '@services/APIService';
 
 const WelcomePage: React.FC = () => {
-  // Product data
-  const products = [
-    { id: 1, name: 'Premium Smart Watch', price: 299.99, category: 'Electronics', rating: 4.5, image: 'watch', color: 'primary', icon: watch, tag: 'trending' },
-    { id: 2, name: 'Designer T-Shirt', price: 49.99, category: 'Fashion', rating: 4.2, image: 'shirt', color: 'secondary', icon: shirt, tag: 'new' },
-    { id: 3, name: 'Wireless Headphones', price: 129.99, category: 'Audio', rating: 4.7, image: 'headset', color: 'tertiary', icon: headset, tag: 'sale' },
-    { id: 4, name: 'Gaming Console', price: 499.99, category: 'Gaming', rating: 4.8, image: 'game', color: 'success', icon: gameController, tag: 'hot' },
-    { id: 5, name: 'Ultrabook Laptop', price: 1299.99, category: 'Computers', rating: 4.6, image: 'laptop', color: 'warning', icon: laptop, tag: 'premium' },
-    { id: 6, name: 'Fitness Tracker', price: 199.99, category: 'Fitness', rating: 4.3, image: 'fitness', color: 'danger', icon: fitness, tag: 'new' },
-    { id: 7, name: 'DSLR Camera', price: 899.99, category: 'Photography', rating: 4.9, image: 'camera', color: 'dark', icon: camera, tag: 'professional' },
-    { id: 8, name: 'Leather Backpack', price: 89.99, category: 'Accessories', rating: 4.4, image: 'bag', color: 'medium', icon: bag, tag: 'bestseller' },
-  ];
+  // API-driven products (PlanTypes / Operators)
+  const [planTypes, setPlanTypes] = useState<any[]>([]);
 
-  // Features data
-  const features = [
-    { icon: shieldCheckmark, title: 'Secure Payment', description: '100% safe & secure transactions' },
-    { icon: cash, title: 'Money Back Guarantee', description: '30-day return policy' },
-    { icon: trendingUp, title: 'Best Prices', description: 'Price match guarantee' },
-    { icon: flame, title: 'Fast Delivery', description: 'Free shipping over $50' },
-  ];
+  const getOperators = async () => {
+    try {
+      const result = await apiClient.getPlanTypes() as any;
+      if (result.success && result.data) {
+        setPlanTypes(result.data);
+        console.log(result.data); // this shows your Operator/Bagistix/Javelin data
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    getOperators();
+  }, []);
 
   // Hero slides data
   const heroSlides = [
@@ -67,7 +57,7 @@ const WelcomePage: React.FC = () => {
       color: 'primary',
       bgColor: 'var(--ion-color-primary)',
       image: 'assets/slide1.jpg',
-      buttonText: 'Shop Now'
+      buttonText: 'Shop Now',
     },
     {
       title: 'Free Shipping',
@@ -76,14 +66,20 @@ const WelcomePage: React.FC = () => {
       color: 'success',
       bgColor: 'var(--ion-color-success)',
       image: 'assets/slide3.jpg',
-      buttonText: 'Start Shopping'
+      buttonText: 'Start Shopping',
     },
   ];
 
-  return (
-    <IonPage className='welcome-page'>
+  // Features data
+  const features = [
+    { icon: shieldCheckmark, title: 'Secure Payment', description: '100% safe & secure transactions' },
+    { icon: cash, title: 'Money Back Guarantee', description: '30-day return policy' },
+    { icon: trendingUp, title: 'Best Prices', description: 'Price match guarantee' },
+    { icon: flame, title: 'Fast Delivery', description: 'Free shipping over $50' },
+  ];
 
-      
+  return (
+    <IonPage className="welcome-page">
       <IonContent fullscreen className="store-content">
         {/* Hero Slider */}
         <section className="hero-slider">
@@ -98,20 +94,12 @@ const WelcomePage: React.FC = () => {
           >
             {heroSlides.map((slide, index) => (
               <SwiperSlide key={index}>
-                <div 
-                  className="hero-slide"
-                  style={{ backgroundColor: slide.bgColor }}
-                >
+                <div className="hero-slide" style={{ backgroundColor: slide.bgColor }}>
                   <div className="slide-content">
                     <h2 className="slide-title">{slide.title}</h2>
                     <h3 className="slide-subtitle">{slide.subtitle}</h3>
                     <p className="slide-description">{slide.description}</p>
-                    <IonButton 
-                      color="light" 
-                      fill="solid" 
-                      size="large"
-                      className="slide-button"
-                    >
+                    <IonButton color="light" fill="solid" size="large" className="slide-button">
                       {slide.buttonText}
                       <IonIcon slot="end" icon={chevronForward} />
                     </IonButton>
@@ -129,7 +117,7 @@ const WelcomePage: React.FC = () => {
               {features.map((feature, index) => (
                 <IonCol size="6" sizeMd="3" key={index}>
                   <div className="feature-card">
-                    <div className="feature-icon" >
+                    <div className="feature-icon">
                       <IonIcon icon={feature.icon} />
                     </div>
                     <h4>{feature.title}</h4>
@@ -141,43 +129,32 @@ const WelcomePage: React.FC = () => {
           </IonGrid>
         </section>
 
-        {/* Products Section */}
+        {/* Products Section (API-driven PlanTypes) */}
         <section className="products-section ion-padding">
           <div className="section-header">
-            <h2>Featured Products</h2>
+            <h2>Featured Operators</h2>
             <IonButton fill="clear" color="primary">
               View All <IonIcon slot="end" icon={chevronForward} />
             </IonButton>
           </div>
-          
+
           <IonGrid>
             <IonRow>
-              {products.map((product) => (
-                <IonCol size="6" sizeMd="3" key={product.id}>
-                  <IonCard className="product-card"
+              {planTypes.map((plan) => (
+                <IonCol size="6" sizeMd="3" key={plan.id}>
 
-										   button
-    routerLink={`/product/${product.id}`}  // Add this line
-
-									>
+                  <IonCard button routerLink={`/operator/${plan.id}`}>
                     <div className="product-image">
-                      <div className="image-placeholder">
-                        <IonIcon icon={product.icon} className="product-icon" />
-                      </div>
+                      <img src={plan.image} alt={plan.name} />
                     </div>
-                    
                     <IonCardHeader>
-                      <IonCardSubtitle>{product.category}</IonCardSubtitle>
-                      <IonCardTitle>{product.name}</IonCardTitle>
+                      <IonCardSubtitle>{plan.description}</IonCardSubtitle>
+                      <IonCardTitle>{plan.name}</IonCardTitle>
                     </IonCardHeader>
-                    
                     <IonCardContent>
                       <div className="product-footer">
                         <div className="product-price">
-                          <h3>${product.price.toFixed(2)}</h3>
-                          {product.id === 3 && (
-                            <span className="original-price">$159.99</span>
-                          )}
+                          <p>Plans: {plan.plans_count}</p>
                         </div>
                       </div>
                     </IonCardContent>
@@ -193,3 +170,4 @@ const WelcomePage: React.FC = () => {
 };
 
 export default WelcomePage;
+
