@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
                 <div className="logo-circle">
                   <IonIcon icon={lockClosedOutline} className="logo-icon" />
                 </div>
-                <h1 className="app-title">Swag Coupons</h1>
+                <h1 className="app-title">Repay PracticeCoupons</h1>
                 <p className="app-subtitle">Sign in to continue</p>
               </div>
 

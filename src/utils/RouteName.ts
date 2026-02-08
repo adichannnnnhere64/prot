@@ -12,4 +12,5 @@ export const RouteName = {
   ORDERS: '/orders',
   ORDER_DETAIL: '/orders/:orderId',
   CREDIT: '/credit',
+  THANKYOU: '/thankyou',
 };

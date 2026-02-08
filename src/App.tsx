@@ -41,6 +41,7 @@ import LoginPage from '@pages/LoginPage';
 import RegisterPage from '@pages/RegisterPage';
 import { useAuth } from '@services/useApi';
 import BuyCreditsPage from '@pages/BuyCreditPage';
+import ThankYouPage from '@pages/ThankYouPage';
 
 let platformMode;
 
@@ -79,7 +80,7 @@ const App: React.FC = () => {
               <IonButtons slot="start">
                 <IonMenuButton />
               </IonButtons>
-              <IonTitle>Swag Coupons</IonTitle>
+              <IonTitle>Repay PracticeCoupons</IonTitle>
               {isAuthenticated && (
                 <IonButtons slot="end">
 		<IonButton routerLink={RouteName.CREDIT} slot="end">
@@ -110,6 +111,10 @@ const App: React.FC = () => {
               <Route exact path={RouteName.PRODUCTS}>
                 <SearchPage />
               </Route>
+             <Route exact path={RouteName.THANKYOU}>
+                <ThankYouPage />
+              </Route>
+
               <Route exact path="/orders">
                 <OrderListPage />
               </Route>
@@ -122,6 +127,7 @@ const App: React.FC = () => {
             <Route exact path={RouteName.CREDIT}>
               <BuyCreditsPage />
             </Route>
+
               <Route exact path="/checkout/:productId">
                 <CheckoutPage />
               </Route>
@@ -191,6 +197,9 @@ const App: React.FC = () => {
             <Route exact path="/checkout/:productId">
               <CheckoutPage />
             </Route>
+             <Route exact path={RouteName.THANKYOU}>
+                <ThankYouPage />
+              </Route>
           </IonRouterOutlet>
         )}
       </IonReactRouter>
