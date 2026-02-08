@@ -230,10 +230,9 @@ const OrderListPage: React.FC = () => {
     
     try {
       setLoading(true);
-      const response = await apiClient.post(`/orders/${cancellingOrderId}/cancel`);
+      const response = await apiClient.post(`/orders/${cancellingOrderId}/cancel`) as any;
       
       if (response.success) {
-        // Refresh orders
         fetchOrders(1);
         setShowCancelConfirm(false);
         setCancellingOrderId(null);
@@ -257,7 +256,7 @@ const OrderListPage: React.FC = () => {
         params.status = exportStatus;
       }
       
-      const response = await apiClient.post('/orders/export', params);
+      const response = await apiClient.post('/orders/export', params) as any;
       
       if (response.success && response.data) {
         if (exportFormat === 'csv') {

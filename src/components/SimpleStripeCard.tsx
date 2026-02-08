@@ -1,5 +1,5 @@
 // components/SimpleStripeCard.tsx
-import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
 import { stripeLoader } from '@services/stripeLoader';
 
 export interface SimpleStripeCardProps {

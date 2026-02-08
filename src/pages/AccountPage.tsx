@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -78,9 +78,9 @@ const AccountPage: React.FC = () => {
 
 
   const stats = [
-    { label: 'Total Orders', value: '24', icon: '📦' },
-    { label: 'Total Spent', value: '$1,850.75', icon: '💰' },
-  ];
+    // { label: 'Total Orders', value: '24', icon: '📦' },
+    // { label: 'Total Spent', value: '$1,850.75', icon: '💰' },
+  ] as any;
 
   return (
     <IonPage className="account-page">
@@ -113,7 +113,7 @@ const AccountPage: React.FC = () => {
         <div className="stats-overview ion-padding">
           <IonGrid>
             <IonRow>
-              {stats.map((stat, index) => (
+              {stats.map((stat: any, index: any): ReactElement<any, any> => (
                 <IonCol size="6" key={index}>
                   <div className="stat-card">
                     <div className="stat-icon">{stat.icon}</div>

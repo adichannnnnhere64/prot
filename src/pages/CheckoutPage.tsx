@@ -37,6 +37,7 @@ import {
 import './CheckoutPage.scss';
 import apiClient from '@services/APIService';
 import { useAuth } from '@services/useApi';
+import { RouteName } from '@utils/RouteName';
 
 interface PlanType {
   id: number;
@@ -390,6 +391,7 @@ const CheckoutPage: React.FC = () => {
                   </p>
                 </IonText>
                 <IonButton 
+									routerLink={RouteName.CREDIT}
                   expand="block" 
                   fill="outline" 
                   color="primary"

@@ -80,7 +80,7 @@ const App: React.FC = () => {
               <IonButtons slot="start">
                 <IonMenuButton />
               </IonButtons>
-              <IonTitle>Repay PracticeCoupons</IonTitle>
+              <IonTitle>Swag Coupons Coupons</IonTitle>
               {isAuthenticated && (
                 <IonButtons slot="end">
 		<IonButton routerLink={RouteName.CREDIT} slot="end">

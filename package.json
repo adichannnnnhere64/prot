@@ -24,7 +24,8 @@
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
     "bumppatch": "pnpm version patch -i --force",
     "bumpversion": "pnpm version minor -i --force",
-    "bumprelease": "npm version major -i --force"
+    "bumprelease": "npm version major -i --force",
+    "build:laravel": "pnpm ionic:build && rm -rf ../public/build && mkdir -p ../public/build && cp -r dist/* ../public/build/"
   },
   "dependencies": {
     "@ionic/react": "^8.7.17",

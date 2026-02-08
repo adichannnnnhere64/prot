@@ -47,6 +47,7 @@ import {
   User,
 } from '@models/payment.types';
 import { RouteName } from '@utils/RouteName';
+import { JSX } from 'react/jsx-runtime';
 
 
 
@@ -211,7 +212,7 @@ const handleConfirmPurchase = async (): Promise<void> => {
 
     // If response has a client_secret, we need to confirm the payment
     if (response.data.action_data?.client_secret) {
-      await handleStripePayment(response.data.action_data.client_secret, response.data);
+      await handleStripePayment(response.data.action_data.client_secret);
       return;
     }
 
@@ -243,7 +244,7 @@ const handleConfirmPurchase = async (): Promise<void> => {
       throw new Error('Stripe configuration missing');
     }
 
-    const stripe = await loadStripe(publishableKey);
+    const stripe = await loadStripe(publishableKey) as any;
     
     if (selectedPaymentMethodId) {
       // Confirm payment with saved payment method
