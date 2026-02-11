@@ -443,6 +443,8 @@ useEffect(() => {
         await refreshUser();
       }
 
+    sessionStorage.setItem('refresh_orders', 'true');
+
     } catch (error: any) {
       throw error;
     }
