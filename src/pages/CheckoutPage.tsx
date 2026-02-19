@@ -147,7 +147,6 @@ useEffect(() => {
           setError('No external payment methods available. Please use wallet payment or contact support.');
         }
       } else {
-        console.error('Failed to fetch gateways:', response.message);
         setError('Failed to load payment options. Please try again.');
       }
     } catch (error) {
@@ -267,7 +266,7 @@ useEffect(() => {
             setError('No payment methods available. Please try again later.');
           }
         } else {
-          console.error('Failed to fetch gateways:', response.message);
+          // console.error('Failed to fetch gateways:', response.message);
           setError('Failed to load payment options. Please try again.');
         }
       } catch (error) {
@@ -907,7 +906,7 @@ useEffect(() => {
                       onMethodSelected={setSelectedPaymentMethodId}
                       gatewayConfig={gateways.find(g => g.name === 'stripe')?.config}
                       showAddButton={true}
-                      onPaymentMethodAdded={(newMethodId) => {
+                      onPaymentMethodAdded={(newMethodId: any) => {
                         setSelectedPaymentMethodId(newMethodId);
                       }}
                     />

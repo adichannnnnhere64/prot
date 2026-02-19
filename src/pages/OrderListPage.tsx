@@ -31,7 +31,7 @@ import {
 } from '@ionic/react';
 import {
   search,
-  eye,
+  // eye,
   download,
   arrowBack,
   arrowForward,
@@ -49,7 +49,7 @@ import {
   cart,
 } from 'ionicons/icons';
 import './OrderListPage.scss';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import { useAuth } from '@services/useApi';
 import apiClient from '@services/APIService';
 
@@ -74,6 +74,14 @@ interface Order {
   payment_method: string | null;
   payment_status: string | null;
   metadata: Record<string, any>;
+  inventory_items?: {  // Add this for backward compatibility
+    id: number;
+    code: string;
+    coupon_url: string | null;
+    download_url: string | null;
+    view_url: string | null;
+    expires_at: string | null;
+  }[];
 }
 
 interface OrderStats {
@@ -108,7 +116,7 @@ const sortOptions = [
 ];
 
 const OrderListPage: React.FC = () => {
-  const history = useHistory();
+  // const history = useHistory();
   const { user } = useAuth();
 	console.log(user)
 
@@ -143,7 +151,15 @@ const OrderListPage: React.FC = () => {
   const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+ function getBaseUrl(): string {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+    return `${backendUrl}/api/v1`;
+  }
+
   const fetchOrders = async (page = 1, resetFilters = false) => {
+
+
+
     try {
       if (!refreshing) setLoading(true);
       setError(null);
@@ -216,11 +232,12 @@ const OrderListPage: React.FC = () => {
     }
   };
 
-  const handleViewOrder = (orderId: number) => {
-    history.push(`/orders/${orderId}`);
-  };
-
+  // const handleViewOrder = (orderId: number) => {
+  //   history.push(`/orders/${orderId}`);
+  // };
+  //
   const handleShowOrderDetails = (order: Order) => {
+        console.log(order)
     setSelectedOrder(order);
     setShowOrderDetails(true);
   };
@@ -454,13 +471,6 @@ useEffect(() => {
                           >
                             <IonIcon slot="icon-only" icon={informationCircle} />
                           </IonButton>
-                          <IonButton
-                            size="small"
-                            fill="clear"
-                            onClick={() => handleViewOrder(order.id)}
-                          >
-                            <IonIcon slot="icon-only" icon={eye} />
-                          </IonButton>
                           {canCancelOrder(order) && (
                             <IonButton
                               size="small"
@@ -487,8 +497,67 @@ useEffect(() => {
     );
   };
 
+
+
   // Order Details Modal
-  const renderOrderDetailsModal = () => (
+  const renderOrderDetailsModal = function () {
+
+        const handleViewCoupon = async () => {
+  const id = selectedOrder?.metadata?.reserved_inventory_ids?.[0];
+  if (!id) return;
+
+  try {
+    const response = await fetch(
+      `${getBaseUrl()}/coupons/view/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to fetch');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+//         const handleDownloadCoupon = async () => {
+//   const id = selectedOrder?.metadata?.reserved_inventory_ids?.[0];
+//   if (!id) return;
+//
+//   try {
+//     const response = await fetch(
+//       `${getBaseUrl()}/coupons/download/${id}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+//         },
+//       }
+//     );
+//
+//     if (!response.ok) throw new Error('Failed to fetch');
+//
+//     const blob = await response.blob();
+//     const url = window.URL.createObjectURL(blob);
+//     window.open(url, '_blank');
+//
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+//
+
+
+  return (
+
+
     <IonModal isOpen={showOrderDetails} onDidDismiss={() => setShowOrderDetails(false)}>
       <IonHeader>
         <IonToolbar>
@@ -509,7 +578,6 @@ useEffect(() => {
                     {getStatusBadge(selectedOrder.status)}
                   </div>
                 </div>
-
                 <IonGrid>
                   <IonRow>
                     <IonCol size="12" sizeMd="6">
@@ -571,23 +639,9 @@ useEffect(() => {
                   <IonRow>
                     <IonCol size="12">
                       <div className="order-items-section">
-                        <h3><IonIcon icon={cart} /> Order Items ({selectedOrder.items_count})</h3>
-                        <IonList lines="full">
-                          {selectedOrder.items.map((item) => (
-                            <IonItem key={item.id}>
-                              <IonLabel>
-                                <h3>{item.name}</h3>
-                                <p>Quantity: {item.quantity}</p>
-                              </IonLabel>
-                              <IonNote slot="end">
-                                <div className="item-price">
-                                  <p>{formatCurrency(item.price)} each</p>
-                                  <p className="item-subtotal">{formatCurrency(item.subtotal)}</p>
-                                </div>
-                              </IonNote>
-                            </IonItem>
-                          ))}
-                        </IonList>
+
+                                                    <IonButton onClick={handleViewCoupon}>View</IonButton>
+
                       </div>
                     </IonCol>
                   </IonRow>
@@ -611,10 +665,6 @@ useEffect(() => {
                 </IonGrid>
 
                 <div className="order-actions ion-padding-top">
-                  <IonButton expand="block" onClick={() => handleViewOrder(selectedOrder.id)}>
-                    <IonIcon slot="start" icon={eye} />
-                    View Full Details
-                  </IonButton>
                   {canCancelOrder(selectedOrder) && (
                     <IonButton
                       expand="block"
@@ -636,8 +686,9 @@ useEffect(() => {
           </div>
         )}
       </IonContent>
-    </IonModal>
-  );
+    </IonModal> )
+
+    };
 
   // Export Modal
   const renderExportModal = () => (

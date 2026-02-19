@@ -33,6 +33,8 @@ import {
   flashOutline,
   timeOutline,
   shieldCheckmarkOutline,
+  warningOutline,
+  closeCircle,
 } from 'ionicons/icons';
 import './OperatorPage.scss';
 import apiClient from '@services/APIService';
@@ -49,6 +51,12 @@ interface PlanType {
   meta_data: string;
   created_at: string;
   updated_at: string;
+  // Add inventory fields
+  inventory_enabled?: boolean;
+  available_stock?: number;
+  total_stock?: number;
+  is_low_stock?: boolean;
+  is_out_of_stock?: boolean;
 }
 
 interface Operator {
@@ -64,24 +72,40 @@ interface Operator {
   updated_at: string;
 }
 
+interface InventoryStatus {
+  [planId: number]: {
+    in_stock: boolean;
+    available_stock: number;
+    is_low_stock: boolean;
+    is_out_of_stock: boolean;
+    inventory_enabled: boolean;
+  };
+}
+
 const OperatorPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
-  
+
   const [operator, setOperator] = useState<Operator | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inventoryStatus, setInventoryStatus] = useState<InventoryStatus>({});
+  const [checkingInventory, setCheckingInventory] = useState(false);
 
   useEffect(() => {
     const fetchOperator = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const result = await apiClient.getPlanType(parseInt(productId || '1')) as any;
-        
+
         if (result) {
           setOperator(result);
+          // Check inventory for all active plans
+          if (result.plan_types && result.plan_types.length > 0) {
+            await checkPlansInventory(result.plan_types);
+          }
         } else {
           setError('Operator not found');
         }
@@ -98,8 +122,129 @@ const OperatorPage: React.FC = () => {
     }
   }, [productId]);
 
-  const handlePlanClick = (planId: number) => {
-    history.push(`/checkout/${planId}`);
+  // Check inventory for all plans
+  const checkPlansInventory = async (plans: PlanType[]) => {
+    try {
+      setCheckingInventory(true);
+      const statusMap: InventoryStatus = {};
+
+      // Check each active plan's inventory
+      await Promise.all(
+        plans.map(async (plan) => {
+          try {
+            const response = await apiClient.get<{
+              success: boolean;
+              data: {
+                in_stock: boolean;
+                available_stock: number;
+                is_low_stock: boolean;
+                is_out_of_stock: boolean;
+                inventory_enabled: boolean;
+              };
+            }>(`/plans/${plan.id}/inventory/check`);
+
+            if (response.success && response.data) {
+              statusMap[plan.id] = response.data;
+            } else {
+              // Default values if no inventory data
+              statusMap[plan.id] = {
+                in_stock: true,
+                available_stock: 999,
+                is_low_stock: false,
+                is_out_of_stock: false,
+                inventory_enabled: false,
+              };
+            }
+          } catch (error) {
+            console.error(`Error checking inventory for plan ${plan.id}:`, error);
+            // If inventory check fails, assume it's in stock
+            statusMap[plan.id] = {
+              in_stock: true,
+              available_stock: 999,
+              is_low_stock: false,
+              is_out_of_stock: false,
+              inventory_enabled: false,
+            };
+          }
+        })
+      );
+
+      setInventoryStatus(statusMap);
+    } catch (error) {
+      console.error('Error checking inventory:', error);
+    } finally {
+      setCheckingInventory(false);
+    }
+  };
+
+  // const handlePlanClick = (planId: number) => {
+  //   const plan = operator?.plan_types.find(p => p.id === planId);
+  //   const status = inventoryStatus[planId];
+  //
+  //   // Check if plan is available to purchase
+  //   const isAvailable = plan?.is_active &&
+  //     (!status?.inventory_enabled || (status?.in_stock && !status?.is_out_of_stock));
+  //
+  //   if (isAvailable) {
+  //     history.push(`/operator/${planId}`);
+  //   }
+  // };
+
+  // Get plan status message
+  const getPlanStatusMessage = (plan: PlanType): { message: string; color: string; icon: string } => {
+    const status = inventoryStatus[plan.id];
+
+    if (!plan.is_active) {
+      return {
+        message: 'Currently Unavailable',
+        color: 'medium',
+        icon: closeCircle,
+      };
+    }
+
+    if (status?.inventory_enabled) {
+      if (status.is_out_of_stock) {
+        return {
+          message: 'Out of Stock',
+          color: 'danger',
+          icon: warningOutline,
+        };
+      }
+      if (status.is_low_stock) {
+        return {
+          message: `Only ${status.available_stock} left in stock!`,
+          color: 'warning',
+          icon: warningOutline,
+        };
+      }
+      if (status.available_stock > 0) {
+        return {
+          message: `${status.available_stock} in stock`,
+          color: 'success',
+          icon: checkmarkCircle,
+        };
+      }
+    }
+
+    return {
+      message: 'In Stock',
+      color: 'success',
+      icon: checkmarkCircle,
+    };
+  };
+
+  // Check if plan is available for purchase
+  const isPlanAvailable = (plan: PlanType): boolean => {
+    const status = inventoryStatus[plan.id];
+
+    if (!plan.is_active) return false;
+    if (!status) return true; // If no status yet, assume available
+
+    if (status.inventory_enabled) {
+      return status.in_stock && !status.is_out_of_stock && status.available_stock > 0;
+    }
+
+    return true;
   };
 
   if (loading) {
@@ -175,8 +320,8 @@ const OperatorPage: React.FC = () => {
               </IonChip>
             )}
             {operator.image ? (
-              <img 
-                src={operator.image} 
+              <img
+                src={operator.image}
                 alt={operator.name}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
@@ -233,68 +378,88 @@ const OperatorPage: React.FC = () => {
           <div className="plans-section">
             <div className="section-header">
               <h2>Available Plans</h2>
-              <IonBadge color="primary">{operator.plans_count}</IonBadge>
+              <div className="section-header-right">
+                {checkingInventory && <IonSpinner name="dots" />}
+                <IonBadge color="primary">{operator.plans_count}</IonBadge>
+              </div>
             </div>
 
             {operator.plan_types && operator.plan_types.length > 0 ? (
               <div className="plans-list">
-                {operator.plan_types.map((plan) => (
-                  <IonCard 
-                    key={plan.id} 
-                    className={`plan-card ${!plan.is_active ? 'inactive-plan' : ''}`}
-                    button={plan.is_active}
-                    onClick={() => plan.is_active && handlePlanClick(plan.id)}
-                  >
-                    <IonCardHeader>
-                      <div className="plan-card-header">
-                        <div>
-                          <IonCardTitle className="plan-name">{plan.name}</IonCardTitle>
-                          <IonCardSubtitle>{plan.description}</IonCardSubtitle>
-                        </div>
-                        {plan.discount_percentage < 0 && (
-                          <IonBadge color="danger" className="discount-badge">
-                            {Math.abs(plan.discount_percentage).toFixed(0)}% OFF
-                          </IonBadge>
-                        )}
+                {operator.plan_types.map((plan) => {
+              const isAvailable = isPlanAvailable(plan);
+              const statusMessage = getPlanStatusMessage(plan);
+
+              return (
+                <IonCard
+                  key={plan.id}
+                  className={`plan-card ${!isAvailable ? 'plan-unavailable' : ''} ${inventoryStatus[plan.id]?.is_low_stock ? 'low-stock' : ''}`}
+                >
+                  <IonCardHeader>
+                    <div className="plan-card-header">
+                      <div>
+                        <IonCardTitle className="plan-name">{plan.name}</IonCardTitle>
+                        <IonCardSubtitle>{plan.description}</IonCardSubtitle>
                       </div>
-                    </IonCardHeader>
+                      {plan.discount_percentage < 0 && (
+                        <IonBadge color="danger" className="discount-badge">
+                          {Math.abs(plan.discount_percentage).toFixed(0)}% OFF
+                        </IonBadge>
+                      )}
+                    </div>
+                  </IonCardHeader>
 
-                    <IonCardContent>
-                      <div className="plan-pricing-section">
-                        {plan.discount_percentage < 0 ? (
-                          <div className="pricing-discounted">
-                            <span className="original-price">${plan.base_price.toFixed(2)}</span>
-                            <span className="current-price">${plan.actual_price.toFixed(2)}</span>
-                            <IonText color="success" className="savings">
-                              <small>Save ${(plan.base_price - plan.actual_price).toFixed(2)}</small>
-                            </IonText>
-                          </div>
-                        ) : (
-                          <div className="pricing-regular">
-                            <span className="current-price">${plan.actual_price.toFixed(2)}</span>
-                          </div>
-                        )}
-
-                        <IonButton
-                          expand="block"
-                          color={plan.is_active ? 'primary' : 'medium'}
-                          disabled={!plan.is_active}
-                          className="select-plan-btn"
+                  <IonCardContent>
+                    {/* Stock Status */}
+                    {inventoryStatus[plan.id]?.inventory_enabled && (
+                      <div className="stock-status">
+                        <IonChip
+                          color={statusMessage.color as any}
+                          className="stock-chip"
                         >
-                          {plan.is_active ? 'Select Plan' : 'Not Available'}
-                        </IonButton>
+                          <IonIcon icon={statusMessage.icon} />
+                          <IonLabel>{statusMessage.message}</IonLabel>
+                        </IonChip>
                       </div>
+                    )}
 
-                      {plan.meta_data && (
-                        <div className="plan-metadata">
-                          <IonText color="medium">
-                            <small><IonIcon icon={checkmarkCircle} /> {plan.meta_data}</small>
+                    <div className="plan-pricing-section">
+                      {plan.discount_percentage < 0 ? (
+                        <div className="pricing-discounted">
+                          <span className="original-price">${plan.base_price.toFixed(2)}</span>
+                          <span className="current-price">${plan.actual_price.toFixed(2)}</span>
+                          <IonText color="success" className="savings">
+                            <small>Save ${(plan.base_price - plan.actual_price).toFixed(2)}</small>
                           </IonText>
                         </div>
+                      ) : (
+                        <div className="pricing-regular">
+                          <span className="current-price">${plan.actual_price.toFixed(2)}</span>
+                        </div>
                       )}
-                    </IonCardContent>
-                  </IonCard>
-                ))}
+
+                      <IonButton
+                        expand="block"
+                        color={isAvailable ? 'primary' : 'medium'}
+                        disabled={!isAvailable}
+                        className="select-plan-btn"
+                        onClick={() => history.push(`/checkout/${plan.id}`)} // THIS IS THE FIX
+                      >
+                        {isAvailable ? 'Select Plan' : statusMessage.message}
+                      </IonButton>
+                    </div>
+
+                    {plan.meta_data && (
+                      <div className="plan-metadata">
+                        <IonText color="medium">
+                          <small><IonIcon icon={checkmarkCircle} /> {plan.meta_data}</small>
+                        </IonText>
+                      </div>
+                    )}
+                  </IonCardContent>
+                </IonCard>
+              );
+            })}
               </div>
             ) : (
               <IonCard>
