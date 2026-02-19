@@ -18,9 +18,9 @@ import {
   IonCardSubtitle,
   IonText,
   IonSpinner,
-  IonGrid,
-  IonRow,
-  IonCol,
+  // IonGrid,
+  // IonRow,
+  // IonCol,
   IonBadge,
 } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
@@ -30,9 +30,9 @@ import {
   arrowBack,
   pricetag,
   checkmarkCircle,
-  flashOutline,
-  timeOutline,
-  shieldCheckmarkOutline,
+  // flashOutline,
+  // timeOutline,
+  // shieldCheckmarkOutline,
   warningOutline,
   closeCircle,
 } from 'ionicons/icons';
@@ -345,39 +345,39 @@ const OperatorPage: React.FC = () => {
           <p className="product-description">{operator.description}</p>
 
           {/* Features Section */}
-          <IonGrid className="features-grid ion-margin-vertical">
-            <IonRow>
-              <IonCol size="4" className="ion-text-center">
-                <div className="feature-item">
-                  <IonIcon icon={flashOutline} color="primary" size="large" />
-                  <IonText color="medium">
-                    <small>Instant</small>
-                  </IonText>
-                </div>
-              </IonCol>
-              <IonCol size="4" className="ion-text-center">
-                <div className="feature-item">
-                  <IonIcon icon={shieldCheckmarkOutline} color="success" size="large" />
-                  <IonText color="medium">
-                    <small>Secure</small>
-                  </IonText>
-                </div>
-              </IonCol>
-              <IonCol size="4" className="ion-text-center">
-                <div className="feature-item">
-                  <IonIcon icon={timeOutline} color="warning" size="large" />
-                  <IonText color="medium">
-                    <small>24/7</small>
-                  </IonText>
-                </div>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-
+          {/* <IonGrid className="features-grid ion-margin-vertical"> */}
+          {/*   <IonRow> */}
+          {/*     <IonCol size="4" className="ion-text-center"> */}
+          {/*       <div className="feature-item"> */}
+          {/*         <IonIcon icon={flashOutline} color="primary" size="large" /> */}
+          {/*         <IonText color="medium"> */}
+          {/*           <small>Instant</small> */}
+          {/*         </IonText> */}
+          {/*       </div> */}
+          {/*     </IonCol> */}
+          {/*     <IonCol size="4" className="ion-text-center"> */}
+          {/*       <div className="feature-item"> */}
+          {/*         <IonIcon icon={shieldCheckmarkOutline} color="success" size="large" /> */}
+          {/*         <IonText color="medium"> */}
+          {/*           <small>Secure</small> */}
+          {/*         </IonText> */}
+          {/*       </div> */}
+          {/*     </IonCol> */}
+          {/*     <IonCol size="4" className="ion-text-center"> */}
+          {/*       <div className="feature-item"> */}
+          {/*         <IonIcon icon={timeOutline} color="warning" size="large" /> */}
+          {/*         <IonText color="medium"> */}
+          {/*           <small>24/7</small> */}
+          {/*         </IonText> */}
+          {/*       </div> */}
+          {/*     </IonCol> */}
+          {/*   </IonRow> */}
+          {/* </IonGrid> */}
+          {/**/}
           {/* Available Plans Section */}
           <div className="plans-section">
             <div className="section-header">
-              <h2>Available Plans</h2>
+              <h2>Available Coupons</h2>
               <div className="section-header-right">
                 {checkingInventory && <IonSpinner name="dots" />}
                 <IonBadge color="primary">{operator.plans_count}</IonBadge>
@@ -472,35 +472,35 @@ const OperatorPage: React.FC = () => {
             )}
           </div>
 
-          {/* Additional Information */}
-          <IonCard className="info-card ion-margin-top">
-            <IonCardContent>
-              <h3 className="info-title">Why Choose Us?</h3>
-              <div className="info-list">
-                <div className="info-item">
-                  <IonIcon icon={checkmarkCircle} color="success" />
-                  <div>
-                    <strong>Instant Activation</strong>
-                    <p>Your plan activates immediately after purchase</p>
-                  </div>
-                </div>
-                <div className="info-item">
-                  <IonIcon icon={checkmarkCircle} color="success" />
-                  <div>
-                    <strong>Secure Payments</strong>
-                    <p>100% safe and encrypted transactions</p>
-                  </div>
-                </div>
-                <div className="info-item">
-                  <IonIcon icon={checkmarkCircle} color="success" />
-                  <div>
-                    <strong>24/7 Support</strong>
-                    <p>Get help whenever you need it</p>
-                  </div>
-                </div>
-              </div>
-            </IonCardContent>
-          </IonCard>
+          {/* {/* Additional Information */}
+          {/* <IonCard className="info-card ion-margin-top"> */}
+          {/*   <IonCardContent> */}
+          {/*     <h3 className="info-title">Why Choose Us?</h3> */}
+          {/*     <div className="info-list"> */}
+          {/*       <div className="info-item"> */}
+          {/*         <IonIcon icon={checkmarkCircle} color="success" /> */}
+          {/*         <div> */}
+          {/*           <strong>Instant Activation</strong> */}
+          {/*           <p>Your plan activates immediately after purchase</p> */}
+          {/*         </div> */}
+          {/*       </div> */}
+          {/*       <div className="info-item"> */}
+          {/*         <IonIcon icon={checkmarkCircle} color="success" /> */}
+          {/*         <div> */}
+          {/*           <strong>Secure Payments</strong> */}
+          {/*           <p>100% safe and encrypted transactions</p> */}
+          {/*         </div> */}
+          {/*       </div> */}
+          {/*       <div className="info-item"> */}
+          {/*         <IonIcon icon={checkmarkCircle} color="success" /> */}
+          {/*         <div> */}
+          {/*           <strong>24/7 Support</strong> */}
+          {/*           <p>Get help whenever you need it</p> */}
+          {/*         </div> */}
+          {/*       </div> */}
+          {/*     </div> */}
+          {/*   </IonCardContent> */}
+          {/* </IonCard> */}
         </div>
       </IonContent>
     </IonPage>
