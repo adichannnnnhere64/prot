@@ -204,4 +204,36 @@ ion-tab-button {
   }
 }
 
-  
+
+
+// Credit chip styling for mobile header
+.credit-chip {
+  --background: rgba(255, 255, 255, 0.2);
+  --color: white;
+  height: 32px;
+  font-weight: 500;
+  margin: 0;
+  cursor: pointer;
+
+  ion-icon {
+    color: white;
+    margin-right: 4px;
+  }
+
+  ion-label {
+    color: white;
+    font-weight: 600;
+  }
+
+  // Add hover effect
+  &:hover {
+    --background: rgba(255, 255, 255, 0.3);
+  }
+
+  // Active/pressed state
+  &:active {
+    --background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+

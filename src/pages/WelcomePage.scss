@@ -4,10 +4,12 @@
   }
 
   .hero-slider {
-    height: 300px;
-    
+    height: 356px; // 300px visible + 56px for navbar
+    padding-top: 56px; // Account for mobile navbar overlap
+
     @media (min-width: 768px) {
       height: 400px;
+      padding-top: 0;
     }
   }
 
