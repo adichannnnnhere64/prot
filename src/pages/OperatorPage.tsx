@@ -13,9 +13,9 @@ import {
   IonChip,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
+  // IonCardHeader,
+  // IonCardTitle,
+  // IonCardSubtitle,
   IonText,
   IonSpinner,
   // IonGrid,
@@ -29,15 +29,16 @@ import {
   shareSocial,
   arrowBack,
   pricetag,
-  checkmarkCircle,
+  // checkmarkCircle,
   // flashOutline,
   // timeOutline,
   // shieldCheckmarkOutline,
-  warningOutline,
-  closeCircle,
+  // warningOutline,
+  // closeCircle,
 } from 'ionicons/icons';
 import './OperatorPage.scss';
 import apiClient from '@services/APIService';
+import CouponCard from '@components/ui/CouponCard';
 
 interface PlanType {
   id: number;
@@ -190,63 +191,6 @@ const OperatorPage: React.FC = () => {
   //   }
   // };
 
-  // Get plan status message
-  const getPlanStatusMessage = (plan: PlanType): { message: string; color: string; icon: string } => {
-    const status = inventoryStatus[plan.id];
-
-    if (!plan.is_active) {
-      return {
-        message: 'Currently Unavailable',
-        color: 'medium',
-        icon: closeCircle,
-      };
-    }
-
-    if (status?.inventory_enabled) {
-      if (status.is_out_of_stock) {
-        return {
-          message: 'Out of Stock',
-          color: 'danger',
-          icon: warningOutline,
-        };
-      }
-      if (status.is_low_stock) {
-        return {
-          message: `Only ${status.available_stock} left in stock!`,
-          color: 'warning',
-          icon: warningOutline,
-        };
-      }
-      if (status.available_stock > 0) {
-        return {
-          message: `${status.available_stock} in stock`,
-          color: 'success',
-          icon: checkmarkCircle,
-        };
-      }
-    }
-
-    return {
-      message: 'In Stock',
-      color: 'success',
-      icon: checkmarkCircle,
-    };
-  };
-
-  // Check if plan is available for purchase
-  const isPlanAvailable = (plan: PlanType): boolean => {
-    const status = inventoryStatus[plan.id];
-
-    if (!plan.is_active) return false;
-    if (!status) return true; // If no status yet, assume available
-
-    if (status.inventory_enabled) {
-      return status.in_stock && !status.is_out_of_stock && status.available_stock > 0;
-    }
-
-    return true;
-  };
-
   if (loading) {
     return (
       <IonPage>
@@ -387,77 +331,17 @@ const OperatorPage: React.FC = () => {
             {operator.plan_types && operator.plan_types.length > 0 ? (
               <div className="plans-list">
                 {operator.plan_types.map((plan) => {
-              const isAvailable = isPlanAvailable(plan);
-              const statusMessage = getPlanStatusMessage(plan);
+              {/* const isAvailable = isPlanAvailable(plan); */}
+              {/* const statusMessage = getPlanStatusMessage(plan); */}
 
               return (
-                <IonCard
-                  key={plan.id}
-                  className={`plan-card ${!isAvailable ? 'plan-unavailable' : ''} ${inventoryStatus[plan.id]?.is_low_stock ? 'low-stock' : ''}`}
-                >
-                  <IonCardHeader>
-                    <div className="plan-card-header">
-                      <div>
-                        <IonCardTitle className="plan-name">{plan.name}</IonCardTitle>
-                        <IonCardSubtitle>{plan.description}</IonCardSubtitle>
-                      </div>
-                      {plan.discount_percentage < 0 && (
-                        <IonBadge color="danger" className="discount-badge">
-                          {Math.abs(plan.discount_percentage).toFixed(0)}% OFF
-                        </IonBadge>
-                      )}
-                    </div>
-                  </IonCardHeader>
+              <CouponCard
+                                                key={plan.id}
+                plan={plan}
+                inventoryStatus={inventoryStatus[plan.id]}
+                checkoutPath="/checkout"
+                                        />
 
-                  <IonCardContent>
-                    {/* Stock Status */}
-                    {inventoryStatus[plan.id]?.inventory_enabled && (
-                      <div className="stock-status">
-                        <IonChip
-                          color={statusMessage.color as any}
-                          className="stock-chip"
-                        >
-                          <IonIcon icon={statusMessage.icon} />
-                          <IonLabel>{statusMessage.message}</IonLabel>
-                        </IonChip>
-                      </div>
-                    )}
-
-                    <div className="plan-pricing-section">
-                      {plan.discount_percentage < 0 ? (
-                        <div className="pricing-discounted">
-                          <span className="original-price">${plan.base_price.toFixed(2)}</span>
-                          <span className="current-price">${plan.actual_price.toFixed(2)}</span>
-                          <IonText color="success" className="savings">
-                            <small>Save ${(plan.base_price - plan.actual_price).toFixed(2)}</small>
-                          </IonText>
-                        </div>
-                      ) : (
-                        <div className="pricing-regular">
-                          <span className="current-price">${plan.actual_price.toFixed(2)}</span>
-                        </div>
-                      )}
-
-                      <IonButton
-                        expand="block"
-                        color={isAvailable ? 'primary' : 'medium'}
-                        disabled={!isAvailable}
-                        className="select-plan-btn"
-                        onClick={() => history.push(`/checkout/${plan.id}`)} // THIS IS THE FIX
-                      >
-                        {isAvailable ? 'Select Plan' : statusMessage.message}
-                      </IonButton>
-                    </div>
-
-                    {plan.meta_data && (
-                      <div className="plan-metadata">
-                        <IonText color="medium">
-                          <small><IonIcon icon={checkmarkCircle} /> {plan.meta_data}</small>
-                        </IonText>
-                      </div>
-                    )}
-                  </IonCardContent>
-                </IonCard>
               );
             })}
               </div>
