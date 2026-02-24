@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonBackButton,
-  IonTitle,
   IonContent,
   IonCard,
   IonCardContent,
@@ -27,7 +22,6 @@ import {
 } from '@ionic/react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import {
-  arrowBack,
   wallet,
   checkmarkCircle,
   cash,
@@ -38,11 +32,16 @@ import {
   cardOutline,
   warning,
 } from 'ionicons/icons';
+import { useQuery } from '@tanstack/react-query';
 import './CheckoutPage.scss';
 import apiClient from '@services/APIService';
-import { useAuth } from '@services/useApi';
 import { RouteName } from '@utils/RouteName';
 import PaymentMethodComponent from '@components/PaymentMethodComponent';
+import { useAuth } from '@services/useApi';
+import { useProtectedRoute } from '@services/useProtectedRoute';
+import { PageHeader } from '@components/ui';
+import { usePaymentGatewaysQuery, queryKeys } from '@hooks/useQueries';
+import { useNotification } from '@services/useNotification';
 
 interface PlanType {
   id: number;
@@ -96,85 +95,13 @@ interface PaymentResponse {
 }
 
 const CheckoutPage: React.FC = () => {
-
-
-    // Update your fetchGateways function in CheckoutPage.tsx:
-
-useEffect(() => {
-  const fetchGateways = async () => {
-    try {
-      setGatewaysLoading(true);
-      const response = await apiClient.get<{ success: boolean; data: any[] }>('/payment/gateways');
-
-      console.log('Gateways API Response:', response);
-
-      if (response.success && response.data) {
-        console.log('All gateways from API:', response.data);
-
-        // Fix: Handle undefined is_active by treating it as true
-        const externalGateways = response.data.filter(gateway => {
-          // If is_active is undefined, assume it's true (active)
-          const isActive = gateway.is_active === undefined ? true : Boolean(gateway.is_active);
-          const isNotInternal = gateway.name !== 'internal';
-          const isExternal = Boolean(gateway.is_external); // stripe shows is_external: true
-
-          console.log(`Gateway ${gateway.name}:`, {
-            isActive,
-            isNotInternal,
-            isExternal,
-            is_active_value: gateway.is_active,
-            is_external_value: gateway.is_external
-          });
-
-          return isActive && isNotInternal && isExternal;
-        });
-
-        console.log('External gateways for checkout:', externalGateways);
-
-        setGateways(externalGateways);
-
-        if (externalGateways.length > 0) {
-          const stripeGateway = externalGateways.find(g => g.name === 'stripe');
-          if (stripeGateway) {
-            console.log('Found Stripe gateway:', stripeGateway);
-            setSelectedGateway('stripe');
-          } else {
-            console.log('Stripe NOT found in filtered gateways');
-            setSelectedGateway(externalGateways[0].name);
-          }
-        } else {
-          console.warn('No external payment gateways available');
-          setError('No external payment methods available. Please use wallet payment or contact support.');
-        }
-      } else {
-        setError('Failed to load payment options. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error fetching gateways:', error);
-      setError('Failed to load payment options. Please try again.');
-    } finally {
-      setGatewaysLoading(false);
-    }
-  };
-
-  fetchGateways();
-}, []);
-
-
-  const { productId } = useParams<{ productId: string }>();
   const history = useHistory();
   const location = useLocation<LocationState>();
-  const { user, isAuthenticated, refreshUser } = useAuth();
+  const { productId } = useParams<{ productId: string }>();
+  const planIdNum = parseInt(productId || '0');
+   const notif = useNotification();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      history.replace('/');
-    }
-  }, [isAuthenticated, history]);
-
-  const [plan, setPlan] = useState<PlanType | null>(location.state?.plan || null);
-  const [operator, setOperator] = useState<Operator | null>(location.state?.operator || null);
-  const [loading, setLoading] = useState(!plan);
+  // UI state
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -183,102 +110,63 @@ useEffect(() => {
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [transactionId, setTransactionId] = useState<number | null>(null);
-  const [gateways, setGateways] = useState<any[]>([]);
-  const [gatewaysLoading, setGatewaysLoading] = useState(false);
+  const [operator, setOperator] = useState<Operator | null>(location.state?.operator || null);
 
-  // Fetch plan data if not passed via location state
+  // Auth hooks
+  const { user, refreshUser } = useAuth();
+
+  const { isChecking } = useProtectedRoute({
+    redirectTo: '/login',
+    errorMessage: 'You need to be logged in to access this page'
+  });
+
+  // Fetch plan data with React Query
+  const planQuery = useQuery({
+    queryKey: queryKeys.plan(planIdNum),
+    queryFn: () => apiClient.getPlan(planIdNum),
+    enabled: !!productId && !isChecking,
+  });
+
+  const plan: PlanType | null = planQuery.data ? {
+    id: planQuery.data.id,
+    plan_type_id: planQuery.data.plan_type_id,
+    name: planQuery.data.name,
+    description: planQuery.data.description || '',
+    base_price: planQuery.data.base_price,
+    actual_price: planQuery.data.actual_price,
+    is_active: planQuery.data.is_active,
+    discount_percentage: planQuery.data.discount_percentage || 0,
+    meta_data: '',
+  } : location.state?.plan || null;
+
+  const loading = planQuery.isLoading;
+
+  // Fetch operator data
   useEffect(() => {
-    const fetchPlanData = async () => {
-      if (!plan && productId) {
-        try {
-          setLoading(true);
-          const planData = await apiClient.getPlan(parseInt(productId));
+    if (planQuery.data?.plan_type_id && !operator) {
+      apiClient.getPlanType(planQuery.data.plan_type_id).then((data) => {
+        setOperator({
+          id: data.id,
+          name: data.name,
+          description: data.description || '',
+          image: '',
+        });
+      });
+    }
+  }, [planQuery.data?.plan_type_id, operator]);
 
-          const mappedPlan: PlanType = {
-            id: planData.id,
-            plan_type_id: planData.plan_type_id,
-            name: planData.name,
-            description: planData.description || '',
-            base_price: planData.base_price,
-            actual_price: planData.actual_price,
-            is_active: planData.is_active,
-            discount_percentage: planData.discount_percentage || 0,
-            meta_data: '',
-          };
+  // Fetch payment gateways with React Query
+  const gatewaysQuery = usePaymentGatewaysQuery();
+  const gateways = gatewaysQuery.data || [];
+  const gatewaysLoading = gatewaysQuery.isLoading;
 
-          setPlan(mappedPlan);
-
-          if (planData.plan_type_id) {
-            const operatorData = await apiClient.getPlanType(planData.plan_type_id);
-            setOperator({
-              id: operatorData.id,
-              name: operatorData.name,
-              description: operatorData.description || '',
-              image: '',
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching plan:', error);
-          setError('Failed to load plan details');
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchPlanData();
-  }, [productId, plan]);
-
-  // Fetch available payment gateways
+  // Set default gateway when gateways load
   useEffect(() => {
-    const fetchGateways = async () => {
-      try {
-        setGatewaysLoading(true);
-        const response = await apiClient.get<{ success: boolean; data: any[] }>('/payment/gateways');
-
-        console.log('Gateways API Response:', response);
-
-        if (response.success && response.data) {
-          console.log('All gateways from API:', response.data);
-
-          // Include ALL active gateways except internal
-          const externalGateways = response.data.filter(g =>
-            g.is_active && g.name !== 'internal'
-          );
-
-          console.log('External gateways for checkout:', externalGateways);
-
-          setGateways(externalGateways);
-
-          if (externalGateways.length > 0) {
-            // Try to find Stripe first
-            const stripeGateway = externalGateways.find(g => g.name === 'stripe');
-            if (stripeGateway) {
-              setSelectedGateway('stripe');
-              console.log('Selected Stripe as default gateway');
-            } else {
-              // Otherwise use the first available gateway
-              setSelectedGateway(externalGateways[0].name);
-              console.log('Selected first gateway:', externalGateways[0].name);
-            }
-          } else {
-            console.warn('No external payment gateways available');
-            setError('No payment methods available. Please try again later.');
-          }
-        } else {
-          // console.error('Failed to fetch gateways:', response.message);
-          setError('Failed to load payment options. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error fetching gateways:', error);
-        setError('Failed to load payment options. Please try again.');
-      } finally {
-        setGatewaysLoading(false);
-      }
-    };
-
-    fetchGateways();
-  }, []);
+    if (gateways.length > 0 && !selectedGateway) {
+      const stripeGateway = gateways.find((g: any) => g.name === 'stripe');
+      setSelectedGateway(stripeGateway ? 'stripe' : gateways[0].name);
+    }
+  }, [gateways, selectedGateway]);
 
   const userCredits = parseFloat(user?.wallet_balance || '0');
   const totalPrice = plan?.actual_price || 0;
@@ -344,16 +232,20 @@ useEffect(() => {
 
       const transactionResponse = await apiClient.post<TransactionResponse>('/payment/transaction', transactionData);
 
+
       if (!transactionResponse.success) {
+        notif.error(transactionResponse.message || 'Failed to create transaction');
         throw new Error(transactionResponse.message || 'Failed to create transaction');
       }
 
       setTransactionId(transactionResponse.data.transaction_id);
       setShowConfirmation(true);
 
+
     } catch (error: any) {
-      console.error('Transaction creation failed:', error);
-      setError(error.message || 'Failed to start purchase process');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to start purchase process';
+      notif.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -381,7 +273,8 @@ useEffect(() => {
       }
     } catch (error: any) {
       setIsProcessing(false);
-      setError(error.message || 'Purchase failed. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Purchase failed. Please try again.';
+      setError(errorMessage);
       console.error('Purchase failed:', error);
     }
   };
@@ -407,12 +300,16 @@ useEffect(() => {
       const response = await apiClient.post<PaymentResponse>('/payment/initiate', paymentData);
 
       if (!response.success) {
+
+        notif.success(response.message);
         throw new Error(response.message || 'Wallet payment failed');
       }
 
       if (response.data.payment_reference) {
         await verifyAndComplete(response.data.payment_reference);
       } else {
+
+        notif.error('No payment reference returned');
         throw new Error('No payment reference returned');
       }
 
@@ -432,6 +329,8 @@ useEffect(() => {
       const response = await apiClient.post<PaymentResponse>('/payment/verify', verificationData);
 
       if (!response.success) {
+
+        notif.error(response.message || 'Payment verification failed');
         throw new Error(response.message || 'Payment verification failed');
       }
 
@@ -442,7 +341,7 @@ useEffect(() => {
         await refreshUser();
       }
 
-    sessionStorage.setItem('refresh_orders', 'true');
+      sessionStorage.setItem('refresh_orders', 'true');
 
     } catch (error: any) {
       throw error;
@@ -471,6 +370,8 @@ useEffect(() => {
       const response = await apiClient.post<PaymentResponse>('/payment/initiate', paymentData);
 
       if (!response.success) {
+
+        notif.error(response.message || 'Payment initiation failed');
         throw new Error(response.message || 'Payment initiation failed');
       }
 
@@ -496,6 +397,8 @@ useEffect(() => {
       const publishableKey = stripeGateway?.config?.public_key;
 
       if (!publishableKey) {
+
+        notif.error('Stripe configuration missing');
         throw new Error('Stripe configuration missing');
       }
 
@@ -511,6 +414,8 @@ useEffect(() => {
         );
 
         if (error) {
+
+        notif.error(error.message);
           throw new Error(error.message);
         }
 
@@ -520,14 +425,20 @@ useEffect(() => {
           const { error: confirmError } = await stripe.handleCardAction(clientSecret);
 
           if (confirmError) {
+
+        notif.error(confirmError.message);
             throw new Error(confirmError.message);
           }
 
           await verifyAndComplete(paymentIntent.id);
         } else if (paymentIntent?.status === 'requires_payment_method') {
+
+        notif.error('Payment method is required. Please select a payment method.');
           throw new Error('Payment method is required. Please select a payment method.');
         }
       } else {
+
+        notif.error('No payment method selected');
         throw new Error('No payment method selected');
       }
 
@@ -579,18 +490,25 @@ useEffect(() => {
     });
   };
 
-  // Loading state
+  // Conditional returns AFTER all hooks
+  if (isChecking) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <IonSpinner name="crescent" />
+            <IonLabel style={{ marginLeft: '10px' }}>Checking authentication...</IonLabel>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  // Loading state for plan data
   if (loading) {
     return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/" />
-            </IonButtons>
-            <IonTitle>Loading...</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <PageHeader title="Loading..." defaultHref="/" />
         <IonContent>
           <div className="ion-padding ion-text-center" style={{ marginTop: '50%' }}>
             <IonSpinner name="crescent" />
@@ -605,14 +523,7 @@ useEffect(() => {
   if (!plan) {
     return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/" />
-            </IonButtons>
-            <IonTitle>Plan Not Found</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <PageHeader title="Plan Not Found" defaultHref="/" />
         <IonContent>
           <div className="ion-padding ion-text-center">
             <h2>Plan not found</h2>
@@ -625,16 +536,15 @@ useEffect(() => {
 
   return (
     <IonPage className="checkout-page">
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => history.goBack()}>
-              <IonIcon slot="icon-only" icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Checkout</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <PageHeader
+        title="Checkout"
+        defaultHref={`/operator/${plan.plan_type_id}`}
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: operator?.name || 'Operator', href: `/operator/${plan.plan_type_id}` },
+          { label: 'Checkout' },
+        ]}
+      />
 
       <IonContent fullscreen>
         {/* Error Message */}
