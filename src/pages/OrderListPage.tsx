@@ -636,7 +636,7 @@ useEffect(() => {
                     <IonItem>
                       <IonLabel>
                         <p>Items</p>
-                        <h3>{order.items_count} item(s)</h3>
+                        <h3>1 item(s)</h3>
                       </IonLabel>
                     </IonItem>
                     <IonItem>
